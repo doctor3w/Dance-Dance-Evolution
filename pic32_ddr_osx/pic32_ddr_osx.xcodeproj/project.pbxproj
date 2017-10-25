@@ -1,0 +1,332 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 48;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		FDECB3F01FA035EE009FC18F /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = FDECB3EF1FA035EE009FC18F /* AppDelegate.m */; };
+		FDECB3F21FA035EE009FC18F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FDECB3F11FA035EE009FC18F /* Assets.xcassets */; };
+		FDECB3F51FA035EE009FC18F /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = FDECB3F31FA035EE009FC18F /* MainMenu.xib */; };
+		FDECB3F81FA035EE009FC18F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = FDECB3F71FA035EE009FC18F /* main.m */; };
+		FDECB4041FA03720009FC18F /* DDRViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FDECB4031FA03720009FC18F /* DDRViewController.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		FDECB3EB1FA035EE009FC18F /* pic32_ddr_osx.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = pic32_ddr_osx.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FDECB3EE1FA035EE009FC18F /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		FDECB3EF1FA035EE009FC18F /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		FDECB3F11FA035EE009FC18F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		FDECB3F41FA035EE009FC18F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		FDECB3F61FA035EE009FC18F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		FDECB3F71FA035EE009FC18F /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		FDECB3F91FA035EE009FC18F /* pic32_ddr_osx.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = pic32_ddr_osx.entitlements; sourceTree = "<group>"; };
+		FDECB4001FA036A8009FC18F /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
+		FDECB4011FA036B1009FC18F /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
+		FDECB4021FA03720009FC18F /* DDRViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DDRViewController.h; sourceTree = "<group>"; };
+		FDECB4031FA03720009FC18F /* DDRViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DDRViewController.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		FDECB3E81FA035EE009FC18F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		FDECB3E21FA035EE009FC18F = {
+			isa = PBXGroup;
+			children = (
+				FDECB3ED1FA035EE009FC18F /* pic32_ddr_osx */,
+				FDECB3EC1FA035EE009FC18F /* Products */,
+				FDECB3FF1FA036A8009FC18F /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		FDECB3EC1FA035EE009FC18F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				FDECB3EB1FA035EE009FC18F /* pic32_ddr_osx.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		FDECB3ED1FA035EE009FC18F /* pic32_ddr_osx */ = {
+			isa = PBXGroup;
+			children = (
+				FDECB3EE1FA035EE009FC18F /* AppDelegate.h */,
+				FDECB3EF1FA035EE009FC18F /* AppDelegate.m */,
+				FDECB4021FA03720009FC18F /* DDRViewController.h */,
+				FDECB4031FA03720009FC18F /* DDRViewController.m */,
+				FDECB3F11FA035EE009FC18F /* Assets.xcassets */,
+				FDECB3F31FA035EE009FC18F /* MainMenu.xib */,
+				FDECB3F61FA035EE009FC18F /* Info.plist */,
+				FDECB3F71FA035EE009FC18F /* main.m */,
+				FDECB3F91FA035EE009FC18F /* pic32_ddr_osx.entitlements */,
+			);
+			path = pic32_ddr_osx;
+			sourceTree = "<group>";
+		};
+		FDECB3FF1FA036A8009FC18F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				FDECB4011FA036B1009FC18F /* CoreFoundation.framework */,
+				FDECB4001FA036A8009FC18F /* IOKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		FDECB3EA1FA035EE009FC18F /* pic32_ddr_osx */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FDECB3FC1FA035EE009FC18F /* Build configuration list for PBXNativeTarget "pic32_ddr_osx" */;
+			buildPhases = (
+				FDECB3E71FA035EE009FC18F /* Sources */,
+				FDECB3E81FA035EE009FC18F /* Frameworks */,
+				FDECB3E91FA035EE009FC18F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = pic32_ddr_osx;
+			productName = pic32_ddr_osx;
+			productReference = FDECB3EB1FA035EE009FC18F /* pic32_ddr_osx.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		FDECB3E31FA035EE009FC18F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0900;
+				ORGANIZATIONNAME = "Drew Dunne";
+				TargetAttributes = {
+					FDECB3EA1FA035EE009FC18F = {
+						CreatedOnToolsVersion = 9.0.1;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = FDECB3E61FA035EE009FC18F /* Build configuration list for PBXProject "pic32_ddr_osx" */;
+			compatibilityVersion = "Xcode 8.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = FDECB3E21FA035EE009FC18F;
+			productRefGroup = FDECB3EC1FA035EE009FC18F /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				FDECB3EA1FA035EE009FC18F /* pic32_ddr_osx */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		FDECB3E91FA035EE009FC18F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FDECB3F21FA035EE009FC18F /* Assets.xcassets in Resources */,
+				FDECB3F51FA035EE009FC18F /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		FDECB3E71FA035EE009FC18F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FDECB3F81FA035EE009FC18F /* main.m in Sources */,
+				FDECB3F01FA035EE009FC18F /* AppDelegate.m in Sources */,
+				FDECB4041FA03720009FC18F /* DDRViewController.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		FDECB3F31FA035EE009FC18F /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				FDECB3F41FA035EE009FC18F /* Base */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		FDECB3FA1FA035EE009FC18F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		FDECB3FB1FA035EE009FC18F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		FDECB3FD1FA035EE009FC18F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = pic32_ddr_osx/pic32_ddr_osx.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = F9THZS828N;
+				INFOPLIST_FILE = pic32_ddr_osx/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "drewdunne.pic32-ddr-osx";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		FDECB3FE1FA035EE009FC18F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = pic32_ddr_osx/pic32_ddr_osx.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = F9THZS828N;
+				INFOPLIST_FILE = pic32_ddr_osx/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "drewdunne.pic32-ddr-osx";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		FDECB3E61FA035EE009FC18F /* Build configuration list for PBXProject "pic32_ddr_osx" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FDECB3FA1FA035EE009FC18F /* Debug */,
+				FDECB3FB1FA035EE009FC18F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FDECB3FC1FA035EE009FC18F /* Build configuration list for PBXNativeTarget "pic32_ddr_osx" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FDECB3FD1FA035EE009FC18F /* Debug */,
+				FDECB3FE1FA035EE009FC18F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = FDECB3E31FA035EE009FC18F /* Project object */;
+}

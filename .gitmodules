@@ -1,3 +1,6 @@
 [submodule "pic32_ddr_osx/Frameworks/ORSSerialPort"]
 	path = pic32_ddr_osx/Frameworks/ORSSerialPort
 	url = https://github.com/armadsen/ORSSerialPort.git
+[submodule "ddr_pic32/Frameworks/ORSSerialPort"]
+	path = ddr_pic32/Frameworks/ORSSerialPort
+	url = https://github.com/armadsen/ORSSerialPort.git

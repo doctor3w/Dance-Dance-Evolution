@@ -1,0 +1,33 @@
+
+All files in Quartzeroids2 are Copyright Matt Gallagher 2009.
+All rights reserved.
+
+Permission is given to use the source code files without charge in any
+programming project, commercial or otherwise, entirely at your risk, with
+the condition that any redistribution in source code form must retain this
+copyright and permission notice. Attribution in compiled projects is
+appreciated but not required.
+
+No permission is given to redistribute artwork assets. These may only be
+used as part of the original Quartzeroids project.
+
+--------------------------------------------------------------------------
+
+This project was adapted from Matt Gallagher's Quartzeroids2 project to
+use his simple game setup based on NSView and CoreAnimation.
+
+The files taken directly from Quartzeroids2 are:
+ImageLayer (.h/.m)
+GameObjectLayer (.h/.m)
+GameObject (.h/.m)
+SynthesizeSingleton.h
+
+The files adapted from Quartzeroids2 to fit this project are:
+GameController (.h/.m)
+GameData (.h/.m)
+
+No artwork assets were reused.
+
+--------------------------------------------------------------------------
+
+This project was also adapted from Andrew R. Madsen's ORSSerialPortDemo.

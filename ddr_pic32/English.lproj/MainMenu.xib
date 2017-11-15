@@ -157,6 +157,26 @@
                                     <action selector="newGame:" target="450" id="463"/>
                                 </connections>
                             </button>
+                            <popUpButton verticalHuggingPriority="750" misplaced="YES" id="Civ-2b-gxV">
+                                <rect key="frame" x="30" y="110" width="118" height="25"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <popUpButtonCell key="cell" type="roundTextured" title="Item 1" bezelStyle="texturedRounded" alignment="center" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" selectedItem="JNv-UA-A1k" id="cuL-5j-pJm">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="menu"/>
+                                    <menu key="menu" id="321-xG-QFu">
+                                        <items>
+                                            <menuItem title="Item 1" state="on" id="JNv-UA-A1k"/>
+                                            <menuItem title="Item 2" id="ZMq-ih-dgG"/>
+                                            <menuItem title="Item 3" id="mpq-jL-Oo4"/>
+                                        </items>
+                                    </menu>
+                                </popUpButtonCell>
+                                <connections>
+                                    <binding destination="450" name="content" keyPath="serialPortManager.availablePorts" id="7lt-cM-VAG"/>
+                                    <binding destination="450" name="contentValues" keyPath="serialPortManager.availablePorts.name" previousBinding="7lt-cM-VAG" id="i4k-K7-Lfo"/>
+                                    <binding destination="450" name="selectedObject" keyPath="serialPort" previousBinding="i4k-K7-Lfo" id="uvt-dm-KLI"/>
+                                </connections>
+                            </popUpButton>
                         </subviews>
                     </customView>
                 </subviews>
@@ -172,5 +192,6 @@
             </connections>
         </customObject>
         <customObject id="420" customClass="NSFontManager"/>
+        <userDefaultsController representsSharedInstance="YES" id="hJm-1a-1AK"/>
     </objects>
 </document>

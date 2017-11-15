@@ -18,9 +18,27 @@
 		C9F201560F4533890071E805 /* ImageLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = C9F201550F4533890071E805 /* ImageLayer.m */; };
 		C9FACCD30F4798AE0016AA82 /* GameData.m in Sources */ = {isa = PBXBuildFile; fileRef = C9FACCD20F4798AE0016AA82 /* GameData.m */; };
 		C9FACE140F47C3AC0016AA82 /* GameObjectLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = C9FACE130F47C3AC0016AA82 /* GameObjectLayer.m */; };
+		FDBE064C1FBBC53200AF2435 /* ORSSerial.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FDBE06491FBBC52A00AF2435 /* ORSSerial.framework */; };
 		FDECB6FF1FBB7A52002E510D /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FDECB6FE1FBB7A52002E510D /* Images.xcassets */; };
 		FDECB7011FBB896E002E510D /* bg.pdf in Resources */ = {isa = PBXBuildFile; fileRef = FDECB7001FBB896D002E510D /* bg.pdf */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		FDBE06481FBBC52A00AF2435 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FDBE06431FBBC52A00AF2435 /* ORSSerialPort.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 9DCA89121A2BB106009285EB;
+			remoteInfo = ORSSerial;
+		};
+		FDBE064A1FBBC52A00AF2435 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FDBE06431FBBC52A00AF2435 /* ORSSerialPort.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 9D7472131B6D7767002D8B10;
+			remoteInfo = "ORSSerialPort Tests";
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		089C165DFE840E0CC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -45,6 +63,7 @@
 		C9FACCD20F4798AE0016AA82 /* GameData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GameData.m; sourceTree = "<group>"; };
 		C9FACE120F47C3AC0016AA82 /* GameObjectLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameObjectLayer.h; sourceTree = "<group>"; };
 		C9FACE130F47C3AC0016AA82 /* GameObjectLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GameObjectLayer.m; sourceTree = "<group>"; };
+		FDBE06431FBBC52A00AF2435 /* ORSSerialPort.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ORSSerialPort.xcodeproj; path = "Frameworks/ORSSerialPort/Framework Project/ORSSerialPort.xcodeproj"; sourceTree = "<group>"; };
 		FDECB6FE1FBB7A52002E510D /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		FDECB7001FBB896D002E510D /* bg.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = bg.pdf; sourceTree = "<group>"; };
 		FDECB70C1FBBA96E002E510D /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
@@ -55,6 +74,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FDBE064C1FBBC53200AF2435 /* ORSSerial.framework in Frameworks */,
 				8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */,
 				C94C72F70F32887700FDA55B /* QuartzCore.framework in Frameworks */,
 			);
@@ -111,6 +131,7 @@
 				29B97317FDCFA39411CA2CEA /* Resources */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
+				FDBE06431FBBC52A00AF2435 /* ORSSerialPort.xcodeproj */,
 			);
 			name = Quartzeroids2;
 			sourceTree = "<group>";
@@ -167,6 +188,15 @@
 			name = Layers;
 			sourceTree = "<group>";
 		};
+		FDBE06441FBBC52A00AF2435 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				FDBE06491FBBC52A00AF2435 /* ORSSerial.framework */,
+				FDBE064B1FBBC52A00AF2435 /* ORSSerialPort Tests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -205,12 +235,35 @@
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* Quartzeroids2 */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = FDBE06441FBBC52A00AF2435 /* Products */;
+					ProjectRef = FDBE06431FBBC52A00AF2435 /* ORSSerialPort.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				8D1107260486CEB800E47090 /* ddr_pic32 */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		FDBE06491FBBC52A00AF2435 /* ORSSerial.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = ORSSerial.framework;
+			remoteRef = FDBE06481FBBC52A00AF2435 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		FDBE064B1FBBC52A00AF2435 /* ORSSerialPort Tests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = "ORSSerialPort Tests.xctest";
+			remoteRef = FDBE064A1FBBC52A00AF2435 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		8D1107290486CEB800E47090 /* Resources */ = {

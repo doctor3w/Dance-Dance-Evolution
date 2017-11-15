@@ -16,6 +16,13 @@
 
 #import <Cocoa/Cocoa.h>
 
+typedef enum {
+    kLeftArrow,
+    kRightArrow,
+    kUpArrow,
+    kDownArrow
+} kArrowType;
+
 @class GameObject;
 
 @interface GameData : NSObject
@@ -39,6 +46,9 @@
 - (void)addGameObject:(GameObject *)newGameObject forKey:(NSString *)gameObjectKey;
 - (void)removeGameObjectForKey:(NSString *)gameObjectKey;
 - (void)changeRunSelector:(SEL)newSelector;
+
+- (void)addArrowSequence:(kArrowType[])arrows withSize:(size_t)n withSequenceKey:(NSString *)key;
+- (void)highlightOutlineArrows:(char)highlights;
 
 @end
 

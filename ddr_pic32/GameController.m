@@ -21,6 +21,22 @@
 
 @implementation GameController
 
+- (instancetype)init
+{
+    self = [super init];
+    if (self)
+    {
+        self.serialPortManager = [ORSSerialPortManager sharedSerialPortManager];
+        self.availableBaudRates = @[@300, @1200, @2400, @4800, @9600, @14400, @19200, @28800, @38400, @57600, @115200, @230400];
+        
+        NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+        [nc addObserver:self selector:@selector(serialPortsWereConnected:) name:ORSSerialPortsWereConnectedNotification object:nil];
+        [nc addObserver:self selector:@selector(serialPortsWereDisconnected:) name:ORSSerialPortsWereDisconnectedNotification object:nil];
+        
+    }
+    return self;
+}
+
 //
 // updateContentViewFrame:
 //
@@ -137,10 +153,18 @@
 //
 - (IBAction)newGame:(id)sender
 {
-	[buttonContainerView setHidden:YES];
-	[contentView becomeFirstResponder];
-	
-	[[GameData sharedGameData] newGame];
+    if (self.serialPort) {
+        self.serialPort.parity = ORSSerialPortParityNone;
+        self.serialPort.numberOfStopBits = 1;
+        self.serialPort.baudRate = @9600;
+        self.serialPort.delegate = self;
+        if (!self.serialPort.isOpen)
+            [self.serialPort open];
+        [buttonContainerView setHidden:YES];
+        [contentView becomeFirstResponder];
+        
+        [[GameData sharedGameData] newGame];
+    }
 }
 
 //
@@ -164,6 +188,100 @@
 			[contentView addSubview:view];
 		}
 	}
+}
+
+
+#pragma mark - Actions
+
+- (IBAction)openOrClosePort:(id)sender
+{
+    self.serialPort.isOpen ? [self.serialPort close] : [self.serialPort open];
+}
+
+#pragma mark - ORSSerialPortDelegate Methods
+
+- (void)serialPortWasOpened:(ORSSerialPort *)serialPort
+{
+    //self.openCloseButton.title = @"Close";
+}
+
+- (void)serialPortWasClosed:(ORSSerialPort *)serialPort
+{
+    //self.openCloseButton.title = @"Open";
+}
+
+- (void)serialPort:(ORSSerialPort *)serialPort didReceiveData:(NSData *)data
+{
+    NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    if ([string length] == 0) return;
+//    NSLog(@"%@",string);
+    if ([string isEqualToString:@"1"]) {
+        [[GameData sharedGameData] highlightOutlineArrows:1];
+    } else if ([string isEqualToString:@"2"]) {
+        [[GameData sharedGameData] highlightOutlineArrows:2];
+    } else if ([string isEqualToString:@"4"]) {
+        [[GameData sharedGameData] highlightOutlineArrows:4];
+    } else if ([string isEqualToString:@"8"]) {
+        [[GameData sharedGameData] highlightOutlineArrows:8];
+    } else if ([string isEqualToString:@"0"]) {
+        [[GameData sharedGameData] highlightOutlineArrows:0];
+    }
+//    NSLog(@"%@",string);
+//    unsigned char *buf = (unsigned char *)[data bytes];
+//    if (!buf[0]) {
+//        NSLog(@"No Data!");
+//        [[GameData sharedGameData] highlightOutlineArrows:0];
+//        return;
+//    }
+//    char arrows = buf[0];
+//    [[GameData sharedGameData] highlightOutlineArrows:arrows];
+}
+
+- (void)serialPortWasRemovedFromSystem:(ORSSerialPort *)serialPort;
+{
+    // After a serial port is removed from the system, it is invalid and we must discard any references to it
+    self.serialPort = nil;
+    //    self.openCloseButton.title = @"Open";
+}
+
+- (void)serialPort:(ORSSerialPort *)serialPort didEncounterError:(NSError *)error
+{
+    NSLog(@"Serial port %@ encountered an error: %@", serialPort, error);
+}
+
+#pragma mark - Notifications
+
+- (void)serialPortsWereConnected:(NSNotification *)notification
+{
+    NSArray *connectedPorts = [notification userInfo][ORSConnectedSerialPortsKey];
+    NSLog(@"Ports were connected: %@", connectedPorts);
+}
+
+- (void)serialPortsWereDisconnected:(NSNotification *)notification
+{
+    NSArray *disconnectedPorts = [notification userInfo][ORSDisconnectedSerialPortsKey];
+    NSLog(@"Ports were disconnected: %@", disconnectedPorts);
+}
+
+
+#pragma mark - Properties
+
+- (void)setSerialPort:(ORSSerialPort *)port
+{
+    if (port != _serialPort)
+    {
+        [_serialPort close];
+        _serialPort.delegate = nil;
+        
+        _serialPort = port;
+        
+        _serialPort.delegate = self;
+    }
+}
+
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 @end

@@ -14,13 +14,18 @@
 //  appreciated but not required.
 //
 
+#import <ORSSerial/ORSSerial.h>
 
-@interface GameController : NSObject
+@interface GameController : NSObject <ORSSerialPortDelegate, NSUserNotificationCenterDelegate>
 {
 	CALayer *backgroundLayer;
 	IBOutlet NSView *contentView;
 	IBOutlet NSView *buttonContainerView;
 }
+
+@property (nonatomic, strong) ORSSerialPortManager *serialPortManager;
+@property (nonatomic, strong) ORSSerialPort *serialPort;
+@property (nonatomic, strong) NSArray *availableBaudRates;
 
 - (IBAction)newGame:(id)sender;
 - (IBAction)toggleFullscreen:(id)sender;

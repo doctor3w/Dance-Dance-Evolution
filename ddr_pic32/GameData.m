@@ -18,13 +18,6 @@
 #import "GameObject.h"
 #include <mach/mach_time.h>
 
-typedef enum {
-    kLeftArrow,
-    kRightArrow,
-    kUpArrow,
-    kDownArrow
-} kArrowType;
-
 NSString *GAME_OBJECT_NEW_NOTIFICATION = @"GameObjectNewNotification";
 
 const double GAME_ASPECT = 16.0 / 10.0;
@@ -248,7 +241,7 @@ NSString *ARROW_KEY_BASE = @"arrow";
     for (i = 0; i < 4; i++) {
         kArrowType arrow = arrows[i];
         GameObject *arrowObj = [[self gameObjects] objectForKey:[GameData keyForArrow:arrow withKey:ARROW_OUTLINE_KEY]];
-        arrowObj.opacity = ((highlights & 0b1) == 0b1) ? 1 : 0;
+        arrowObj.opacity = ((highlights & 0b1) == 0b1) ? 1 : 0.5;
         highlights = highlights >> 1;
     }
 }
@@ -293,7 +286,6 @@ NSString *ARROW_KEY_BASE = @"arrow";
 	NSArray *allKeys = [gameObjects allKeys];
 	for (NSString *gameObjectKey in allKeys)
 	{
-        NSLog(@"%@",gameObjectKey);
 		[gameObjects willChangeValueForKey:gameObjectKey];
 		GameObject *gameObject = [gameObjects objectForKey:gameObjectKey];
 		if ([gameObject updateWithTimeInterval:frameDuration])

@@ -1,0 +1,53 @@
+<html>
+<body>
+<script src="resources/eml_report_loadable_data.js"></script>
+<pre class="code">
+<span class="srcline"><span class="lineno"><a href="1,1" id="srcline1"> 1</a></span><span class="line"><span class="keyword">function</span> <span class="var type0" id="S2T0U3">b</span> = <span class="message error" id="M1F1C">song_conversion</span>(<span class="var type0" id="S3T0U6">read1</span>)</span></span>
+<span class="srcline"><span class="lineno"><a href="1,2" id="srcline2"> 2</a></span><span class="line"><span class="comment">%read1 = audioread('trimmed.wav');</span></span></span>
+<span class="srcline"><span class="lineno"><a href="1,3" id="srcline3"> 3</a></span><span class="line"><span class="comment">%read1 = read1(:,1);</span></span></span>
+<span class="srcline"><span class="lineno"><a href="1,4" id="srcline4"> 4</a></span><span class="line"><span class="var type0" id="S3T0U9">read1</span> = downsample(<span class="var type0" id="S3T0U12">read1</span>,2);</span></span>
+<span class="srcline"><span class="lineno"><a href="1,5" id="srcline5"> 5</a></span><span class="line"><span class="var type0" id="S3T0U16">read1</span> = round(<span class="var type0" id="S3T0U20">read1</span>*256); <span class="comment">%256 bc 8 bit resolution</span></span></span>
+<span class="srcline"><span class="lineno"><a href="1,6" id="srcline6"> 6</a></span><span class="line"><span class="var type0" id="S6T0U24">bdps</span> = 10; <span class="comment">%beat detections per second</span></span></span>
+<span class="srcline"><span class="lineno"><a href="1,7" id="srcline7"> 7</a></span><span class="line"><span class="var type0" id="S7T0U28">segments</span> = <span class="var type0" id="S6T0U30">bdps</span>*(length(<span class="var type0" id="S3T0U35">read1</span>)/22000);</span></span>
+<span class="srcline"><span class="lineno"><a href="1,8" id="srcline8"> 8</a></span><span class="line"></span></span>
+<span class="srcline"><span class="lineno"><a href="1,9" id="srcline9"> 9</a></span><span class="line"><span class="var type0" id="S9T0U39">beats</span> = zeros(1,9);</span></span>
+<span class="srcline"><span class="lineno"><a href="1,10" id="srcline10">10</a></span><span class="line"></span></span>
+<span class="srcline"><span class="lineno"><a href="1,11" id="srcline11">11</a></span><span class="line"><span class="keyword">for</span> <span class="var type0" id="S11T0U46">i</span> = 1:<span class="var type0" id="S7T0U49">segments</span></span></span>
+<span class="srcline"><span class="lineno"><a href="1,12" id="srcline12">12</a></span><span class="line">    [<span class="var type0" id="S12T0U53">C</span>, <span class="var type0" id="S13T0U54">L</span>] = wavedec(<span class="var type0" id="S3T0U58">read1</span>(((<span class="var type0" id="S11T0U65">i</span>-1)*(22000/<span class="var type0" id="S6T0U70">bdps</span>))+1:<span class="var type0" id="S11T0U73">i</span>*(22000/<span class="var type0" id="S6T0U77">bdps</span>)), 11, <span class="string">'Haar'</span>);</span></span>
+<span class="srcline"><span class="lineno"><a href="1,13" id="srcline13">13</a></span><span class="line">    [<span class="var type0" id="S15T0U83">cd1</span>,<span class="var type0" id="S16T0U84">cd2</span>,<span class="var type0" id="S17T0U85">cd3</span>,<span class="var type0" id="S18T0U86">cd4</span>,<span class="var type0" id="S19T0U87">cd5</span>,<span class="var type0" id="S20T0U88">cd6</span>,<span class="var type0" id="S21T0U89">cd7</span>,<span class="var type0" id="S22T0U90">cd8</span>,<span class="var type0" id="S23T0U91">cd9</span>,<span class="var type0" id="S24T0U92">cd10</span>,<span class="var type0" id="S25T0U93">cd11</span>] = detcoef(<span class="var type0" id="S12T0U96">C</span>, <span class="var type0" id="S13T0U97">L</span>,[1, 2, 3, 4,5,6,7,8,9,10,11]);</span></span>
+<span class="srcline"><span class="lineno"><a href="1,14" id="srcline14">14</a></span><span class="line">    </span></span>
+<span class="srcline"><span class="lineno"><a href="1,15" id="srcline15">15</a></span><span class="line">    <span class="keyword">if</span> (max(abs(<span class="var type0" id="S17T0U119">cd3</span>)) &gt;= 400)</span></span>
+<span class="srcline"><span class="lineno"><a href="1,16" id="srcline16">16</a></span><span class="line">        <span class="var type0" id="S9T0U124">beats</span>(1) = 1;</span></span>
+<span class="srcline"><span class="lineno"><a href="1,17" id="srcline17">17</a></span><span class="line">    <span class="keyword">end</span></span></span>
+<span class="srcline"><span class="lineno"><a href="1,18" id="srcline18">18</a></span><span class="line">    <span class="keyword">if</span> (max(abs(<span class="var type0" id="S18T0U135">cd4</span>)) &gt;= 600)</span></span>
+<span class="srcline"><span class="lineno"><a href="1,19" id="srcline19">19</a></span><span class="line">        <span class="var type0" id="S9T0U140">beats</span>(2) = 1;</span></span>
+<span class="srcline"><span class="lineno"><a href="1,20" id="srcline20">20</a></span><span class="line">    <span class="keyword">end</span></span></span>
+<span class="srcline"><span class="lineno"><a href="1,21" id="srcline21">21</a></span><span class="line">    <span class="keyword">if</span> (max(abs(<span class="var type0" id="S19T0U151">cd5</span>)) &gt;= 600)</span></span>
+<span class="srcline"><span class="lineno"><a href="1,22" id="srcline22">22</a></span><span class="line">        <span class="var type0" id="S9T0U156">beats</span>(3) = 1;</span></span>
+<span class="srcline"><span class="lineno"><a href="1,23" id="srcline23">23</a></span><span class="line">    <span class="keyword">end</span></span></span>
+<span class="srcline"><span class="lineno"><a href="1,24" id="srcline24">24</a></span><span class="line">    <span class="keyword">if</span> (max(abs(<span class="var type0" id="S20T0U167">cd6</span>)) &gt;= 1000)</span></span>
+<span class="srcline"><span class="lineno"><a href="1,25" id="srcline25">25</a></span><span class="line">        <span class="var type0" id="S9T0U172">beats</span>(4) = 1;</span></span>
+<span class="srcline"><span class="lineno"><a href="1,26" id="srcline26">26</a></span><span class="line">    <span class="keyword">end</span></span></span>
+<span class="srcline"><span class="lineno"><a href="1,27" id="srcline27">27</a></span><span class="line">    <span class="keyword">if</span> (max(abs(<span class="var type0" id="S21T0U183">cd7</span>)) &gt;= 1500)</span></span>
+<span class="srcline"><span class="lineno"><a href="1,28" id="srcline28">28</a></span><span class="line">        <span class="var type0" id="S9T0U188">beats</span>(5) = 1;</span></span>
+<span class="srcline"><span class="lineno"><a href="1,29" id="srcline29">29</a></span><span class="line">    <span class="keyword">end</span></span></span>
+<span class="srcline"><span class="lineno"><a href="1,30" id="srcline30">30</a></span><span class="line">    <span class="keyword">if</span> (max(abs(<span class="var type0" id="S22T0U199">cd8</span>)) &gt;= 1800)</span></span>
+<span class="srcline"><span class="lineno"><a href="1,31" id="srcline31">31</a></span><span class="line">        <span class="var type0" id="S9T0U204">beats</span>(6) = 1;</span></span>
+<span class="srcline"><span class="lineno"><a href="1,32" id="srcline32">32</a></span><span class="line">    <span class="keyword">end</span></span></span>
+<span class="srcline"><span class="lineno"><a href="1,33" id="srcline33">33</a></span><span class="line">    <span class="keyword">if</span> (max(abs(<span class="var type0" id="S23T0U215">cd9</span>)) &gt;= 1800)</span></span>
+<span class="srcline"><span class="lineno"><a href="1,34" id="srcline34">34</a></span><span class="line">        <span class="var type0" id="S9T0U220">beats</span>(7) = 1;</span></span>
+<span class="srcline"><span class="lineno"><a href="1,35" id="srcline35">35</a></span><span class="line">    <span class="keyword">end</span></span></span>
+<span class="srcline"><span class="lineno"><a href="1,36" id="srcline36">36</a></span><span class="line">    <span class="keyword">if</span> (max(abs(<span class="var type0" id="S24T0U231">cd10</span>)) &gt;= 750)</span></span>
+<span class="srcline"><span class="lineno"><a href="1,37" id="srcline37">37</a></span><span class="line">        <span class="var type0" id="S9T0U236">beats</span>(8) = 1;</span></span>
+<span class="srcline"><span class="lineno"><a href="1,38" id="srcline38">38</a></span><span class="line">    <span class="keyword">end</span></span></span>
+<span class="srcline"><span class="lineno"><a href="1,39" id="srcline39">39</a></span><span class="line">    <span class="keyword">if</span> (max(abs(<span class="var type0" id="S25T0U247">cd11</span>)) &gt;= 750)</span></span>
+<span class="srcline"><span class="lineno"><a href="1,40" id="srcline40">40</a></span><span class="line">        <span class="var type0" id="S9T0U252">beats</span>(9) = 1;</span></span>
+<span class="srcline"><span class="lineno"><a href="1,41" id="srcline41">41</a></span><span class="line">    <span class="keyword">end</span></span></span>
+<span class="srcline"><span class="lineno"><a href="1,42" id="srcline42">42</a></span><span class="line">    <span class="comment">%fprintf('at time %5.2f\n', (1/bdps)*i)</span></span></span>
+<span class="srcline"><span class="lineno"><a href="1,43" id="srcline43">43</a></span><span class="line">    disp(<span class="var type0" id="S9T0U258">beats</span>)</span></span>
+<span class="srcline"><span class="lineno"><a href="1,44" id="srcline44">44</a></span><span class="line">    <span class="var type0" id="S9T0U261">beats</span> = zeros(1,9);</span></span>
+<span class="srcline"><span class="lineno"><a href="1,45" id="srcline45">45</a></span><span class="line"><span class="keyword">end</span></span></span>
+<span class="srcline"><span class="lineno"><a href="1,46" id="srcline46">46</a></span><span class="line"><span class="var type0" id="S2T0U268">b</span> = <span class="var type0" id="S9T0U269">beats</span>;</span></span>
+</pre>
+</body>
+</html>

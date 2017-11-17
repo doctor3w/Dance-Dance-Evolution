@@ -6,7 +6,7 @@
 #include <math.h>
 #include "../header/wavelib.h"
 
-double absmax(double *array, int N) {
+double absmax(int *array, int N) {
         double max;
         int i;
 
@@ -37,13 +37,13 @@ int main() {
         int cd7[16];
         int cd8[8];
         int cd9[4];
-        int cd10[2]
+    int cd10[2];
         int app[2];
 
         char *name = "haar";
         obj = wave_init(name);// Initialize the wavelet
 
-        ifp = fopen("signal.txt", "r");
+        ifp = fopen("signal1.txt", "r");
         i = 0;
         if (!ifp) {
                 printf("Cannot Open File");

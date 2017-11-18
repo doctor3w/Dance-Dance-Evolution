@@ -10,11 +10,13 @@
 
 ### Background
 
+We designed a version of the traditional arcade game 'Dance Dance Revolution' that live synthesizes dance instructions from any audio source using the PIC32.
 
+Our project had a variety of diverse components. We used the on-board ADC to take in audio data, and directed it to two different modules. 
 
 ### High Level Design
 
-
+Our project 
 
 ### Software Design
 
@@ -27,6 +29,8 @@
 
 
 ### Hardware Design
+
+####Schematic
 
 #### Floor Mat
 

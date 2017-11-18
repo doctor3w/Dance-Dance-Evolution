@@ -6,7 +6,7 @@
 #include <math.h>
 #include "../header/wavelib.h"
 
-double absmax(int *array, int N) {
+double absmax(double *array, int N) {
         double max;
         int i;
 
@@ -37,13 +37,13 @@ int main() {
         int cd7[16];
         int cd8[8];
         int cd9[4];
-    int cd10[2];
+        int cd10[2]
         int app[2];
 
         char *name = "haar";
         obj = wave_init(name);// Initialize the wavelet
 
-        ifp = fopen("signal1.txt", "r");
+        ifp = fopen("signal.txt", "r");
         i = 0;
         if (!ifp) {
                 printf("Cannot Open File");
@@ -112,6 +112,13 @@ int main() {
         if(absmax(cd10,2) >= 750) {
         	printf("cd10 beat \n");
         }
+
+        printf("\n cd6 :%g \n", absmax(cd6, 32));
+        printf("\n cd7 :%g \n", absmax(cd7, 16));
+        printf("\n cd8 :%g \n", absmax(cd8, 8));
+
+        printf("\n cd9 :%g \n", absmax(cd9,4));
+
        
         // // Test Reconstruction
         // for (i = 0; i < wt->siglength; ++i) {
@@ -120,7 +127,7 @@ int main() {
        
         // printf("\n MAX %g \n", absmax(diff, wt->siglength)); // If Reconstruction succeeded then the output should be a small value.
        
-        wt_summary(wt);// Prints the full summary.
+        //wt_summary(wt);// Prints the full summary.
         wave_free(obj);
         wt_free(wt);
 

@@ -100,10 +100,65 @@ The group approves the video for inclusion on the course Youtube channel.
 
 ### Appendix B: Commented Code
 
+---
+
 ###Appendix C: Schematics
+
+---
 
 ### Appendix D: Budgeting
 
+| Part                               | Quantity | Cost   |
+| ---------------------------------- | :------- | ------ |
+| Force Sensitive Resistors (FSR402) | 10       | $0.00  |
+| Auxillary Audio Cord               | 1        |        |
+| 10"x10" Canvas Boards              | 5        |        |
+| PIC32 Large Development Board      | 1        | $10.00 |
+| Serial to Serial Cable             | 1        |        |
+| 1/4" 20 Hex Nuts                   | 28       |        |
+| Jumper Cables                      | ???      |        |
+| 6" Solder Board                    | 1        | $2.50  |
+| 2" Solder Board                    | 1        | $1.00  |
+| 9V Power Supply                    | 1        | $5.00  |
+| Lab Speakers                       | 1        | $2.00  |
+| Header Sockets                     | 1        |        |
+| PIC32MX250F128B                    | 1        | $5.00  |
+| 23LC1024 SRAM                      | 1        |        |
+|                                    |          |        |
+| **TOTAL**                          |          | $20.50 |
+
+---
+
 ###Appendix E: Work Distribution
 
+Drew focused on:
+
+* Serial communications
+* Getting the SRAM to work
+* Buffering audio
+* Data transfer between PIC and Mac
+* Writing the entire Mac app!
+
+Michael focused on:
+
+* Prototyping and building all the floor tiles
+* Soldering protoboards
+* Testing and modeling wavelet transforms in MATLAB
+* Finding and working with a suitable DWT library
+* Writing C implementation of beat detection
+
+---
+
 ###Appendix F: References and Helpful Resources
+
+[George Tzanetakis' wonderful paper on beat extraction with the discrete wavelet transform](http://soundlab.cs.princeton.edu/publications/2001_amta_aadwt.pdf)
+
+[Rafat Hussain's C Wave Library, which we didn't end up using, but may be a helpful resource](https://github.com/rafat/wavelib)
+
+[The GNU Scientific Library](https://github.com/ampl/gsl)
+
+[Datasheet for Interlink FSR402](http://interlinkelectronics.com/datasheets/Datasheet_FSR.pdf)
+
+[PIC32 Peripheral Library AKA The Holy Bible](http://ww1.microchip.com/downloads/en/DeviceDoc/32bitPeripheralLibraryGuide.pdf)
+
+**TWO THINGS TO ADD: SPOTIFY PLAYLIST AND LINK TO OUR GITHUB**

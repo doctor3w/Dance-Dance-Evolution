@@ -324,7 +324,7 @@ static PT_THREAD (protothread_input(struct pt *pt))
     char send_byte;
     while(1) {
         // yield time 1 second
-        PT_YIELD_TIME_msec(200) ;
+        PT_YIELD_TIME_msec(60) ;
 
         // TODO: READ IO
         send_byte = 0;

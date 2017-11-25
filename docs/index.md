@@ -1,4 +1,4 @@
-# Dance Dance Evolution
+# *Dance Dance Evolution*
 
 ### Real Time Beat Detection, Audio Buffering, and User Input Using the PIC32
 
@@ -72,13 +72,13 @@ Because the FSRs were small in area (<1 inch square), we added two to each tile 
 
 ###Conclusions
 
-#### Standards
+#### ADD: did we accomplish our goals?
 
-#### IP Considerations
+Our project is heavily inspired by the game Dance Dance Revolution, which is indeed a trademarked property. The title 'Dance Dance Evolution' is not trademarked at all, however. In a sense, we did reverse engineer the mechanics of their game, but we could not find a specific patent for the game play mechanism. We do not think our beat detection algorithm/approach is novel enough to patent (see the Tzanetakis paper in our references). We reuse some code written by Bruce Land and Tahmid Mahmud for the course. Since our project is entirely open source and we are not seeking to mass-produce this for profit, we do not think we are violating any intellectual property.
 
-#### Ethical Considerations
+We believe that our project is fully compliant with IEEE standards. We embarked on the project in an effort to bring an enjoyable, fun game to the masses, and that is ultimately what we ended up doing. Our project's individual components are all harmless: Floor switches, audio buffering, and beat detection. We made special effort to make sure individuals do not trip or injure their feet when playing the game by putting the tiles low to the ground and making sure they would not slide around. As noted above, we do not think we are making any IP violations through the project. Even if our interpretation of the law is incorrect, we doubt that the publication of a single open source version of the Dance Dance Revolution game will cause the game publishers to lose any income. By making our code, schematics, and methodology publically available, we hope to encourage understanding of technology and spark interest in embedded design and signal processing, as per point five of the IEEE Code of Ethics. Moreover, we have noted all contributors and sources of code and ideas. In summation: Our project is fairly benign, and we hope it brings joy to all who play it.
 
-#### Legal Considerations
+We found no legal issues with our project.
 
 ---
 
@@ -86,7 +86,7 @@ Because the FSRs were small in area (<1 inch square), we added two to each tile 
 
 We would like to heartily thank Interlink Electronics for their generous donation of 10 force sensitive resistors (part number FSR402). Their contribution made our project possible.
 
-In addition, we are extremely grateful to Professor Bruce Land, who provided an immeasurable amount of help. Big thanks to Professor David Delchamps, whose lectures and advice inspired the signal analysis component of our project. Mark Zhao was a wonderful TA.
+In addition, we are extremely grateful to Professor Bruce Land, who provided an immeasurable amount of help. Big thanks also to Professor David Delchamps, whose lectures and advice inspired the signal analysis component of our project. Mark Zhao was a spectacular, well-informed TA.
 
 ---
 
@@ -99,6 +99,8 @@ The group approves the video for inclusion on the course Youtube channel.
 ---
 
 ### Appendix B: Commented Code
+
+should put links to other pages/github here
 
 ---
 
@@ -160,5 +162,7 @@ Michael focused on:
 [Datasheet for Interlink FSR402](http://interlinkelectronics.com/datasheets/Datasheet_FSR.pdf)
 
 [PIC32 Peripheral Library AKA The Holy Bible](http://ww1.microchip.com/downloads/en/DeviceDoc/32bitPeripheralLibraryGuide.pdf)
+
+[IEEE Code of Ethics](https://www.ieee.org/about/corporate/governance/p7-8.html)
 
 **TWO THINGS TO ADD: SPOTIFY PLAYLIST AND LINK TO OUR GITHUB**

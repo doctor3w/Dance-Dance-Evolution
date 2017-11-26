@@ -34,6 +34,8 @@ typedef enum {
 	NSTimeInterval frameDuration;
 	
 	NSTimer *timer;
+    
+    NSInteger counter;
 }
 
 + (GameData *)sharedGameData;

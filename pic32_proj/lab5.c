@@ -328,14 +328,18 @@ static PT_THREAD (protothread_input(struct pt *pt))
 
         // TODO: READ IO
         send_byte = 0;
-        send_byte |= (mPORTBReadBits( BIT_7 ) != 0);
-        send_byte |= (mPORTBReadBits( BIT_8 ) != 0) << 1;
-        send_byte |= (mPORTBReadBits( BIT_9 ) != 0) << 2;
-        send_byte |= (mPORTBReadBits( BIT_13 ) != 0) << 3;
+        send_byte |= !(mPORTBReadBits( BIT_7 ) != 0);
+        send_byte |= !(mPORTBReadBits( BIT_8 ) != 0) << 1;
+        send_byte |= !(mPORTBReadBits( BIT_9 ) != 0) << 2;
+        send_byte |= !(mPORTBReadBits( BIT_13 ) != 0) << 3;
         // 0000, 0001, 0010, 0100, 1000
 
         // send the prompt via DMA to serial
-        sprintf(PT_send_buffer,"%d\r\n",send_byte);
+        send_byte = send_byte << 4;
+        send_byte |= 9; 
+//        sprintf(PT_send_buffer,"%d",send_byte);
+        PT_send_buffer[0] = send_byte;
+//        PT_send_buffer[1] = '\n';
         // by spawning a print thread
         PT_SPAWN(pt, &pt_DMA_output, PT_DMA_PutSerialBuffer(&pt_DMA_output) );
         // NEVER exit while

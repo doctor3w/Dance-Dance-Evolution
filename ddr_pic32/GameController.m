@@ -212,29 +212,17 @@
 
 - (void)serialPort:(ORSSerialPort *)serialPort didReceiveData:(NSData *)data
 {
-    NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    if ([string length] == 0) return;
-//    NSLog(@"%@",string);
-    if ([string isEqualToString:@"1"]) {
-        [[GameData sharedGameData] highlightOutlineArrows:1];
-    } else if ([string isEqualToString:@"2"]) {
-        [[GameData sharedGameData] highlightOutlineArrows:2];
-    } else if ([string isEqualToString:@"4"]) {
-        [[GameData sharedGameData] highlightOutlineArrows:4];
-    } else if ([string isEqualToString:@"8"]) {
-        [[GameData sharedGameData] highlightOutlineArrows:8];
-    } else if ([string isEqualToString:@"0"]) {
-        [[GameData sharedGameData] highlightOutlineArrows:0];
+    if (data.length > 0) {
+        unsigned char byte = ((char *)[data bytes])[0];
+        if (byte != 0) {
+            // Actual game data received. invert.
+            unsigned char in_arrows = ~(byte >> 4);
+            NSLog(@"arrows: %d",in_arrows);
+            unsigned char new_arrows = ~(byte) & 0x0f;
+            
+            [[GameData sharedGameData] highlightOutlineArrows:in_arrows];
+        }
     }
-//    NSLog(@"%@",string);
-//    unsigned char *buf = (unsigned char *)[data bytes];
-//    if (!buf[0]) {
-//        NSLog(@"No Data!");
-//        [[GameData sharedGameData] highlightOutlineArrows:0];
-//        return;
-//    }
-//    char arrows = buf[0];
-//    [[GameData sharedGameData] highlightOutlineArrows:arrows];
 }
 
 - (void)serialPortWasRemovedFromSystem:(ORSSerialPort *)serialPort;

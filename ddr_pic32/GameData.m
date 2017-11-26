@@ -212,6 +212,28 @@ NSString *ARROW_KEY_BASE = @"arrow";
     [self alignHorizontalArrows:arrows size:n ForKey:key];
 }
 
+- (void)addArrowSeq:(unsigned char)sequence {
+    kArrowType arrows[] = {kRightArrow, kUpArrow, kDownArrow, kLeftArrow};
+    size_t i;
+    for (i = 0; i < 4; i++) {
+        if (sequence & 0b1) {
+            kArrowType arrow = arrows[i];
+            NSString *imageName = [NSString stringWithFormat:@"DDR_arrow_blue_%@", [GameData stringForArrow:arrow]];
+            GameObject *arrowObj =
+                [[GameObject alloc] initWithImageName:imageName
+                                                    x:0
+                                                    y:-0.05
+                                                width:ARROW_SIZE
+                                               height:ARROW_SIZE
+                                              visible:YES];
+            arrowObj.trajectory = M_PI / 2;
+            arrowObj.speed = ARROW_SPEED;
+            [self addGameObject:arrowObj forKey:[GameData keyForArrow:arrow withKey:key]];
+        }
+        sequence = sequence >> 1;
+    }
+}
+
 - (void)addOutlineArrows {
     kArrowType arrows[] = {kLeftArrow, kUpArrow, kDownArrow, kRightArrow};
     size_t i;
@@ -235,7 +257,7 @@ NSString *ARROW_KEY_BASE = @"arrow";
 
 // bottom four bits represent highlighted arrows
 // order: xxxx, top bit is left, 0th bit is right
-- (void)highlightOutlineArrows:(char)highlights {
+- (void)highlightOutlineArrows:(unsigned char)highlights {
     kArrowType arrows[] = {kRightArrow, kUpArrow, kDownArrow, kLeftArrow};
     size_t i;
     for (i = 0; i < 4; i++) {

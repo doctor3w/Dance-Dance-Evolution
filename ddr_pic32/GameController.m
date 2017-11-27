@@ -117,6 +117,44 @@
 }
 
 //
+// observeValueForKeyPath:ofObject:change:context:
+//
+// Receives key value change notifications for the following keys.
+//
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object
+                        change:(NSDictionary *)change context:(void *)context
+{
+    if ([keyPath isEqualToString:GAME_DATA_MSG_KEY])
+    {
+        NSString *value = [change objectForKey:NSKeyValueChangeNewKey];
+        
+        if ([value isEqual:[NSNull null]])
+        {
+            [[msgText layer] setHidden:YES];
+        }
+        else
+        {
+            [[msgText layer] setHidden:NO];
+            [msgText setStringValue:value];
+        }
+        return;
+    }
+    if ([keyPath isEqualToString:GAME_DATA_SCORE_KEY])
+    {
+        NSString *value = [change objectForKey:NSKeyValueChangeNewKey];
+        
+        if (![value isEqual:[NSNull null]])
+        {
+            [msgText setStringValue:[NSString stringWithFormat:@"Score: %@",value]];
+        }
+        return;
+    }
+    
+    [super observeValueForKeyPath:keyPath ofObject:object change:change
+                          context:context];
+}
+
+//
 // awakeFromNib
 //
 // Creates the background layer and sets the startup state.
@@ -126,6 +164,8 @@
 	[contentView layer].backgroundColor = CGColorCreateGenericRGB(0, 0, 0, 1);
 	CGColorRelease([contentView layer].backgroundColor);
 	
+    [msgText setHidden:YES];
+    
 	backgroundLayer =
 		[[ImageLayer alloc]
 			initWithImageNamed:@"bg"
@@ -133,6 +173,18 @@
 	backgroundLayer.masksToBounds = YES;
 	[[contentView layer] insertSublayer:backgroundLayer atIndex:0];
 	[self updateContentViewFrame:nil];
+    
+    [[[GameData sharedGameData] gameData]
+         addObserver:self
+         forKeyPath:GAME_DATA_MSG_KEY
+         options:NSKeyValueObservingOptionNew
+         context:nil];
+    
+    [[[GameData sharedGameData] gameData]
+         addObserver:self
+         forKeyPath:GAME_DATA_SCORE_KEY
+         options:NSKeyValueObservingOptionNew
+         context:nil];
 	
 	[[NSNotificationCenter defaultCenter]
 		addObserver:self
@@ -215,12 +267,15 @@
     if (data.length > 0) {
         unsigned char byte = ((char *)[data bytes])[0];
         if (byte != 0) {
+            NSLog(@"byte: %d",byte);
             // Actual game data received. invert.
-            unsigned char in_arrows = ~(byte >> 4);
+            unsigned char in_arrows = ((~byte) >> 4) & 0xf;
             NSLog(@"arrows: %d",in_arrows);
-            unsigned char new_arrows = ~(byte) & 0x0f;
-            
+            unsigned char new_arrows = (~byte) & 0x0f;
+            NSLog(@"new: %d",new_arrows);
             [[GameData sharedGameData] highlightOutlineArrows:in_arrows];
+            if (new_arrows != 0)
+                [[GameData sharedGameData] addArrowSeq:new_arrows];
         }
     }
 }

@@ -172,23 +172,44 @@
                                     </menu>
                                 </popUpButtonCell>
                                 <connections>
+                                    <binding destination="450" name="selectedObject" keyPath="serialPort" previousBinding="i4k-K7-Lfo" id="uvt-dm-KLI"/>
                                     <binding destination="450" name="content" keyPath="serialPortManager.availablePorts" id="7lt-cM-VAG"/>
                                     <binding destination="450" name="contentValues" keyPath="serialPortManager.availablePorts.name" previousBinding="7lt-cM-VAG" id="i4k-K7-Lfo"/>
-                                    <binding destination="450" name="selectedObject" keyPath="serialPort" previousBinding="i4k-K7-Lfo" id="uvt-dm-KLI"/>
                                 </connections>
                             </popUpButton>
                         </subviews>
                     </customView>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" id="Yhh-5f-z5u">
+                        <rect key="frame" x="546" y="441" width="136" height="39"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Perfect!" id="iTG-Se-Npv">
+                            <font key="font" metaFont="system" size="28"/>
+                            <color key="textColor" red="1" green="1" blue="1" alpha="0.84999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" id="afg-D8-QPG">
+                        <rect key="frame" x="18" y="433" width="136" height="47"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="Score:" id="ohD-l9-7Vf">
+                            <font key="font" metaFont="system" size="20"/>
+                            <color key="textColor" red="1" green="1" blue="1" alpha="0.84999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
                 </subviews>
             </view>
             <connections>
                 <outlet property="initialFirstResponder" destination="372" id="468"/>
             </connections>
+            <point key="canvasLocation" x="133" y="138"/>
         </window>
         <customObject id="450" customClass="GameController">
             <connections>
                 <outlet property="buttonContainerView" destination="452" id="459"/>
                 <outlet property="contentView" destination="372" id="500"/>
+                <outlet property="msgText" destination="Yhh-5f-z5u" id="cg3-zZ-TqO"/>
+                <outlet property="scoreText" destination="afg-D8-QPG" id="oCT-UK-tTn"/>
             </connections>
         </customObject>
         <customObject id="420" customClass="NSFontManager"/>

@@ -21,6 +21,9 @@
 	CALayer *backgroundLayer;
 	IBOutlet NSView *contentView;
 	IBOutlet NSView *buttonContainerView;
+    
+    IBOutlet NSTextField *msgText;
+    IBOutlet NSTextField *scoreText;
 }
 
 @property (nonatomic, strong) ORSSerialPortManager *serialPortManager;

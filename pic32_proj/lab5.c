@@ -26,7 +26,7 @@ static struct pt pt_tick;
 // uart control threads
 static struct pt pt_input, pt_output, pt_DMA_output ;
 // system 1 second interval tick
-int sys_time_seconds ;
+int sys_time_half_seconds ;
 
 // === RAM test data ====================================================
 // some data to write
@@ -232,8 +232,8 @@ static PT_THREAD (protothread_tick(struct pt *pt))
 
       while(1) {
             // yield time 1 second
-            PT_YIELD_TIME_msec(1000) ;
-            sys_time_seconds++ ;
+            PT_YIELD_TIME_msec(500) ;
+            sys_time_half_seconds++ ;
             // NEVER exit while
       } // END WHILE(1)
   PT_END(pt);
@@ -316,28 +316,38 @@ void __ISR(_TIMER_2_VECTOR, ipl2) Timer2Handler(void)
   mPORTBClearBits(BIT_0);
 }
 
+int prev_send_time = 0;
+
 // === Thread 5 ======================================================
 // update a 1 second tick counter
 static PT_THREAD (protothread_input(struct pt *pt))
 {
     PT_BEGIN(pt);
     char send_byte;
+    char send_seq;
     while(1) {
         // yield time 1 second
         PT_YIELD_TIME_msec(60) ;
 
         // TODO: READ IO
         send_byte = 0;
-        send_byte |= !(mPORTBReadBits( BIT_7 ) != 0);
-        send_byte |= !(mPORTBReadBits( BIT_8 ) != 0) << 1;
-        send_byte |= !(mPORTBReadBits( BIT_9 ) != 0) << 2;
-        send_byte |= !(mPORTBReadBits( BIT_13 ) != 0) << 3;
+        send_seq = 0; // no arrow
+        send_byte |= (mPORTBReadBits( BIT_7 ) == 0) << 4;
+        send_byte |= (mPORTBReadBits( BIT_8 ) == 0) << 5;
+        send_byte |= (mPORTBReadBits( BIT_9 ) == 0) << 6;
+        send_byte |= (mPORTBReadBits( BIT_13 ) == 0) << 7;
         // 0000, 0001, 0010, 0100, 1000
 
         // send the prompt via DMA to serial
-        send_byte = send_byte << 4;
-        send_byte |= 9; 
+//        send_byte = (~send_byte) << 4;
 //        sprintf(PT_send_buffer,"%d",send_byte);
+        if (prev_send_time != sys_time_half_seconds) {
+            send_seq = (0b11110110) & 0x0f; 
+            prev_send_time = sys_time_half_seconds;
+        } else {
+            send_seq = 0x0f;
+        }
+        send_byte |= send_seq;
         PT_send_buffer[0] = send_byte;
 //        PT_send_buffer[1] = '\n';
         // by spawning a print thread

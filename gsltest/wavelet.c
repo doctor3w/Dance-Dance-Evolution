@@ -17,10 +17,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-// #include <config.h>
+#include "config.h"
 #include <stdlib.h>
-#include <gsl/gsl_errno.h>
-#include <gsl/gsl_wavelet.h>
+#include "gsl_errno.h"
+#include "gsl_wavelet.h"
 
 gsl_wavelet *
 gsl_wavelet_alloc (const gsl_wavelet_type * T, size_t k)

@@ -21,7 +21,7 @@
  * available from http://www.numerical-recipes.com
  */
 
-// #include <config.h>
+#include "config.h"
 #include "gsl_errno.h"
 #include "gsl_wavelet.h"
 // #include <gsl/gsl_wavelet2d.h>

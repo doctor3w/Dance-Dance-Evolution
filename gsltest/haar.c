@@ -17,10 +17,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-#include <config.h>
-#include <gsl_errno.h>
+#include "config.h"
+#include "gsl_errno.h"
 //#include <gsl/gsl_math.h>
-#include <gsl_wavelet.h>
+#include "gsl_wavelet.h"
 
 #define M_SQRT1_2  0.70710678118654752440084436210      /* sqrt(1/2) */
 

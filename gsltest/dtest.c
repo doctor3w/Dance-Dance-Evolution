@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <math.h>
-#include <gsl/gsl_sort.h>
-#include <gsl/gsl_wavelet.h>
+#include "gsl_wavelet.h"
 
 double absmax(double *array, int N) {
         double max;
@@ -18,27 +17,28 @@ double absmax(double *array, int N) {
 }
 
 int
-main (int data[2048])
+main (int argc, char **argv)
 {
+  (void)(argc); /* avoid unused parameter warning */
   int i;
   int n = 2048;
-  //double *data = malloc (n * sizeof (double));
+  double *data = malloc (n * sizeof (double));
   //double *abscoeff = malloc (n * sizeof (double));
   //size_t *p = malloc (n * sizeof (size_t));
 
-  //FILE * f;
+  FILE * f;
   gsl_wavelet *w;
   gsl_wavelet_workspace *work;
 
-  w = gsl_wavelet_alloc (gsl_wavelet_daubechies, 4);
+  w = gsl_wavelet_alloc (gsl_wavelet_haar, 2);
   work = gsl_wavelet_workspace_alloc (n);
 
-  //f = fopen (argv[1], "r");
-  //for (i = 0; i < n; i++)
-  //  {
-  //    fscanf (f, "%lg", &data[i]);
-  //  }
-  //fclose (f);
+  f = fopen (argv[1], "r");
+  for (i = 0; i < n; i++)
+   {
+     fscanf (f, "%lg", &data[i]);
+   }
+  fclose (f);
 
   gsl_wavelet_transform_forward (w, data, 1, n, work);
 

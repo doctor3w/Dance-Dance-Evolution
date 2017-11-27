@@ -103,7 +103,7 @@ FILE * gsl_set_stream (FILE * new_stream);
 
 #define GSL_ERROR(reason, gsl_errno) \
        do { \
-       gsl_error (reason, __FILE__, __LINE__, gsl_errno) ; \
+\       //gsl_error (reason, __FILE__, __LINE__, gsl_errno) ; \
        return gsl_errno ; \
        } while (0)
 
@@ -111,7 +111,7 @@ FILE * gsl_set_stream (FILE * new_stream);
 
 #define GSL_ERROR_VAL(reason, gsl_errno, value) \
        do { \
-       gsl_error (reason, __FILE__, __LINE__, gsl_errno) ; \
+\       //gsl_error (reason, __FILE__, __LINE__, gsl_errno) ; \
        return value ; \
        } while (0)
 

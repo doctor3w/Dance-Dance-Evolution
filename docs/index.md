@@ -34,6 +34,8 @@ For user input: The floor tiles are built using Interlink Electronics' force sen
 
 #### Signal Processing and Beat Detection
 
+
+
 #### Audio Buffering using External SRAM
 
 ---

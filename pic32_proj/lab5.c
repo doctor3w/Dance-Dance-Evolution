@@ -232,7 +232,7 @@ static PT_THREAD (protothread_tick(struct pt *pt))
 
       while(1) {
             // yield time 1 second
-            PT_YIELD_TIME_msec(500) ;
+            PT_YIELD_TIME_msec(1000) ;
             sys_time_half_seconds++ ;
             // NEVER exit while
       } // END WHILE(1)

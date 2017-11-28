@@ -17,6 +17,7 @@
 @interface GameObject : NSObject
 {
 	NSString *keyInGameData;
+    NSInteger secNum;
 	NSString *imageName;
 	double angle;
 	double x;
@@ -31,6 +32,7 @@
 }
 
 @property (nonatomic, retain) NSString *keyInGameData;
+@property (nonatomic) NSInteger secNum;
 @property double angle;
 @property double x;
 @property double y;

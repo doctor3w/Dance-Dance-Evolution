@@ -89,7 +89,10 @@ const double GAME_OBJECT_BOUNDARY_EXCESS = 0.1;
 	
 	if (y > 1.0 + (0.5 + GAME_OBJECT_BOUNDARY_EXCESS) * height)
 	{
-		y = -0.5 * height;
+        self.visible = NO;
+//        [[GameData sharedGameData] removeGameObjectForKey:self.keyInGameData];
+//        return YES;
+//        y = -0.5 * height;
 	}
 	else if (y < -(0.5 + GAME_OBJECT_BOUNDARY_EXCESS) * height)
 	{

@@ -34,10 +34,19 @@ typedef enum {
 	NSTimeInterval frameDuration;
 	
 	NSTimer *timer;
+    
+    NSInteger nextSeq;
+    NSInteger seqToHit;
+    
+    NSMutableDictionary *gameData;
 }
 
 + (GameData *)sharedGameData;
 - (NSDictionary *)gameObjects;
+- (NSDictionary *)gameData;
+- (NSInteger)nextSeq;
+- (NSInteger)seqToHit;
+- (NSInteger)score;
 - (double)gameWidth;
 - (double)gameHeight;
 - (void)newGame;
@@ -47,8 +56,8 @@ typedef enum {
 - (void)removeGameObjectForKey:(NSString *)gameObjectKey;
 - (void)changeRunSelector:(SEL)newSelector;
 
-- (void)addArrowSequence:(kArrowType[])arrows withSize:(size_t)n withSequenceKey:(NSString *)key;
-- (void)highlightOutlineArrows:(char)highlights;
+- (void)addArrowSeq:(unsigned char)sequence;
+- (void)highlightOutlineArrows:(unsigned char)highlights;
 
 @end
 
@@ -58,6 +67,8 @@ extern const double GAME_ASPECT;
 extern const double GAME_UPDATE_DURATION;
 
 extern NSString *ARROW_KEY_BASE;
+extern NSString *GAME_DATA_SCORE_KEY;
+extern NSString *GAME_DATA_MSG_KEY;
 
 
 

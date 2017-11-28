@@ -30,6 +30,9 @@ const double HALF_ARROW_PAD = 0.02;
 NSString *ARROW_OUTLINE_KEY = @"outline";
 NSString *ARROW_KEY_BASE = @"arrow";
 
+NSString *GAME_DATA_MSG_KEY = @"message";
+NSString *GAME_DATA_SCORE_KEY = @"score";
+
 @implementation GameData
 
 //SYNTHESIZE_SINGLETON_FOR_CLASS(GameData);
@@ -54,7 +57,8 @@ NSString *ARROW_KEY_BASE = @"arrow";
 	if (self != nil)
 	{
 		gameObjects = [[NSMutableDictionary alloc] init];
-
+        nextSeq = 0;
+        seqToHit = 0;
 		srandom((unsigned)(mach_absolute_time() & 0xFFFFFFFF));
 	}
 	return self;
@@ -116,6 +120,25 @@ NSString *ARROW_KEY_BASE = @"arrow";
 	return gameObjects;
 }
 
+- (NSDictionary *)gameData
+{
+    return gameData;
+}
+
+- (NSInteger)nextSeq {
+    return nextSeq;
+}
+
+- (NSInteger)seqToHit {
+    return seqToHit;
+}
+
+- (NSInteger)score {
+    NSNumber *val = [[self gameData] objectForKey:GAME_DATA_SCORE_KEY];
+    if ([val isEqual:[NSNull null]]) return 0;
+    return val.integerValue;
+}
+
 #pragma mark gameObjects Management
 
 //
@@ -166,10 +189,11 @@ NSString *ARROW_KEY_BASE = @"arrow";
 
 
 // Aligns the arrows in the center and evenly spaced apart
-- (void)alignHorizontalArrows:(kArrowType[])arrows size:(size_t)n ForKey:(NSString *)key {
+- (void)alignHorizontalArrows:(unsigned char)sequence ForKey:(NSString *)key {
     const double center = 0.5 * GAME_ASPECT;
     size_t i;
-    for (i = 0; i < n; i++) {
+    kArrowType arrows[] = {kRightArrow, kUpArrow, kDownArrow, kLeftArrow};
+    for (i = 0; i < 4; i++) {
         kArrowType arrow = arrows[i];
         GameObject *arrowObj = [[self gameObjects] objectForKey:[GameData keyForArrow:arrow withKey:key]];
         switch (arrow) {
@@ -192,24 +216,50 @@ NSString *ARROW_KEY_BASE = @"arrow";
 }
 
 // array of size 4
-- (void)addArrowSequence:(kArrowType[])arrows withSize:(size_t)n withSequenceKey:(NSString *)key
-{
+//- (void)addArrowSequence:(kArrowType[])arrows withSize:(size_t)n withSequenceKey:(NSString *)key
+//{
+//    size_t i;
+//    for (i = 0; i < n; i++) {
+//        kArrowType arrow = arrows[i];
+//        NSString *imageName = [NSString stringWithFormat:@"DDR_arrow_blue_%@", [GameData stringForArrow:arrow]];
+//        GameObject *arrowObj =
+//            [[GameObject alloc] initWithImageName:imageName
+//                                                x:0
+//                                                y:-0.05
+//                                            width:ARROW_SIZE
+//                                           height:ARROW_SIZE
+//                                          visible:YES];
+//        arrowObj.trajectory = M_PI / 2;
+//        arrowObj.speed = ARROW_SPEED;
+//        [self addGameObject:arrowObj forKey:[GameData keyForArrow:arrow withKey:key]];
+//    }
+//    [self alignHorizontalArrows:arrows size:n ForKey:key];
+//}
+
+- (void)addArrowSeq:(unsigned char)sequence {
+    kArrowType arrows[] = {kRightArrow, kUpArrow, kDownArrow, kLeftArrow};
     size_t i;
-    for (i = 0; i < n; i++) {
-        kArrowType arrow = arrows[i];
-        NSString *imageName = [NSString stringWithFormat:@"DDR_arrow_blue_%@", [GameData stringForArrow:arrow]];
-        GameObject *arrowObj =
-            [[GameObject alloc] initWithImageName:imageName
-                                                x:0
-                                                y:-0.05
-                                            width:ARROW_SIZE
-                                           height:ARROW_SIZE
-                                          visible:YES];
-        arrowObj.trajectory = M_PI / 2;
-        arrowObj.speed = ARROW_SPEED;
-        [self addGameObject:arrowObj forKey:[GameData keyForArrow:arrow withKey:key]];
+    NSString* key = [NSString stringWithFormat:@"%ld",nextSeq];
+    unsigned char arrow_seq = sequence;
+    for (i = 0; i < 4; i++) {
+        if (arrow_seq & 0b1) {
+            kArrowType arrow = arrows[i];
+            NSString *imageName = [NSString stringWithFormat:@"DDR_arrow_blue_%@", [GameData stringForArrow:arrow]];
+            GameObject *arrowObj =
+                [[GameObject alloc] initWithImageName:imageName
+                                                    x:0
+                                                    y:-0.05
+                                                width:ARROW_SIZE
+                                               height:ARROW_SIZE
+                                              visible:YES];
+            arrowObj.trajectory = M_PI / 2;
+            arrowObj.speed = ARROW_SPEED;
+            [self addGameObject:arrowObj forKey:[GameData keyForArrow:arrow withKey:key]];
+        }
+        arrow_seq = arrow_seq >> 1;
     }
-    [self alignHorizontalArrows:arrows size:n ForKey:key];
+    [self alignHorizontalArrows:sequence ForKey:key];
+    nextSeq++;
 }
 
 - (void)addOutlineArrows {
@@ -230,18 +280,39 @@ NSString *ARROW_KEY_BASE = @"arrow";
         arrowObj.opacity = 0.5;
         [self addGameObject:arrowObj forKey:[GameData keyForArrow:arrow withKey:ARROW_OUTLINE_KEY]];
     }
-    [self alignHorizontalArrows:arrows size:4 ForKey:ARROW_OUTLINE_KEY];
+    [self alignHorizontalArrows:0b1111 ForKey:ARROW_OUTLINE_KEY];
 }
 
 // bottom four bits represent highlighted arrows
 // order: xxxx, top bit is left, 0th bit is right
-- (void)highlightOutlineArrows:(char)highlights {
+- (void)highlightOutlineArrows:(unsigned char)highlights {
     kArrowType arrows[] = {kRightArrow, kUpArrow, kDownArrow, kLeftArrow};
     size_t i;
+    NSString *seq_num = [NSString stringWithFormat:@"%ld", seqToHit];
     for (i = 0; i < 4; i++) {
         kArrowType arrow = arrows[i];
         GameObject *arrowObj = [[self gameObjects] objectForKey:[GameData keyForArrow:arrow withKey:ARROW_OUTLINE_KEY]];
-        arrowObj.opacity = ((highlights & 0b1) == 0b1) ? 1 : 0.5;
+        bool is_highlighted = ((highlights & 0b1) == 0b1);
+        
+        // Game Logic
+        
+        NSString *key = [GameData keyForArrow:arrow withKey:seq_num];
+        GameObject *arr = [[self gameObjects] objectForKey:key];
+        if (arr.y > arrowObj.y - ARROW_SIZE*1.5 && arr.y < arrowObj.y + ARROW_SIZE*1.5) {
+            // Hit attempt possible
+            if (is_highlighted) { // Attempted hit!
+                // add to score
+                NSInteger add_to = 20 * ARROW_SIZE / fabs(arr.y - arrowObj.y);
+                NSInteger score = [self score] + add_to;
+                NSLog(@"%ld",score);
+                [gameData willChangeValueForKey:GAME_DATA_SCORE_KEY];
+                [gameData setValue:[NSNumber numberWithInteger:score] forKey:GAME_DATA_SCORE_KEY];
+                [gameData didChangeValueForKey:GAME_DATA_SCORE_KEY];
+                seqToHit++;
+             }
+        }
+        
+        arrowObj.opacity = is_highlighted ? 1 : 0.5;
         highlights = highlights >> 1;
     }
 }
@@ -258,10 +329,10 @@ NSString *ARROW_KEY_BASE = @"arrow";
 	[gameObjects removeAllObjects];
     
     [self addOutlineArrows];
+    [gameData setObject:[NSNumber numberWithInt:0] forKey:GAME_DATA_SCORE_KEY];
 
     // Generates fake arrow sequence (will be called by delegate method)
-    kArrowType arrows[] = {kLeftArrow, kUpArrow, kDownArrow, kRightArrow};
-    [self addArrowSequence:arrows withSize:4 withSequenceKey:@"1"];
+    //[self addArrowSeq:0b1111];
     
 	[self changeRunSelector:@selector(updateLevel:)];
 }
@@ -284,16 +355,22 @@ NSString *ARROW_KEY_BASE = @"arrow";
 	}
 	
 	NSArray *allKeys = [gameObjects allKeys];
+    NSMutableArray *invisible = [[NSMutableArray alloc] init];
 	for (NSString *gameObjectKey in allKeys)
 	{
 		[gameObjects willChangeValueForKey:gameObjectKey];
 		GameObject *gameObject = [gameObjects objectForKey:gameObjectKey];
+        if (!gameObject.visible) [invisible addObject:gameObjectKey];
 		if ([gameObject updateWithTimeInterval:frameDuration])
 		{
 			[gameObjects removeObjectForKey:gameObjectKey];
 		}
 		[gameObjects didChangeValueForKey:gameObjectKey];
 	}
+//    for (NSString *key in invisible) {
+//        [gameObjects removeObjectForKey:key];
+////        [gameObjects didChangeValueForKey:key];
+//    }
 }
 
 //

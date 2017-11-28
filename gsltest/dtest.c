@@ -33,6 +33,7 @@ main (int argc, char **argv)
   w = gsl_wavelet_alloc (gsl_wavelet_haar, 2);
   work = gsl_wavelet_workspace_alloc (n);
 
+  printf("HEY!!\n");
   f = fopen (argv[1], "r");
   for (i = 0; i < n; i++)
    {

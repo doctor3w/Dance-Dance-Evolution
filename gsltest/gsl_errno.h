@@ -101,19 +101,9 @@ FILE * gsl_set_stream (FILE * new_stream);
 
 /* GSL_ERROR: call the error handler, and return the error code */
 
-#define GSL_ERROR(reason, gsl_errno) \
-       do { \
-\       //gsl_error (reason, __FILE__, __LINE__, gsl_errno) ; \
-       return gsl_errno ; \
-       } while (0)
 
 /* GSL_ERROR_VAL: call the error handler, and return the given value */
 
-#define GSL_ERROR_VAL(reason, gsl_errno, value) \
-       do { \
-\       //gsl_error (reason, __FILE__, __LINE__, gsl_errno) ; \
-       return value ; \
-       } while (0)
 
 /* GSL_ERROR_VOID: call the error handler, and then return
    (for void functions which still need to generate an error) */

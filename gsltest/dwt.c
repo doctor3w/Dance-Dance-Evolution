@@ -125,12 +125,14 @@ gsl_wavelet_transform (const gsl_wavelet * w,
 
   if (work->n < n)
     {
-      GSL_ERROR ("not enough workspace provided", GSL_EINVAL);
+      printf("Error\n");
+      return GSL_EINVAL;
     }
 
   if (binary_logn (n) == -1)
     {
-      GSL_ERROR ("n is not a power of 2", GSL_EINVAL);
+      printf("Error\n");
+      return GSL_EINVAL;
     }
 
   if (n < 2)
@@ -193,17 +195,20 @@ gsl_wavelet2d_transform (const gsl_wavelet * w,
 
   if (size1 != size2)
     {
-      GSL_ERROR ("2d dwt works only with square matrix", GSL_EINVAL);
+      printf("Error\n");
+      return GSL_EINVAL;
     }
 
   if (work->n < size1)
     {
-      GSL_ERROR ("not enough workspace provided", GSL_EINVAL);
+      printf("Error\n");
+      return GSL_EINVAL;
     }
 
   if (binary_logn (size1) == -1)
     {
-      GSL_ERROR ("n is not a power of 2", GSL_EINVAL);
+      printf("Error\n");
+      return GSL_EINVAL;
     }
 
   if (size1 < 2)

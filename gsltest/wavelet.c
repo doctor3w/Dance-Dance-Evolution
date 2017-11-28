@@ -19,7 +19,7 @@
 
 #include "config.h"
 #include <stdlib.h>
-#include "gsl_errno.h"
+// #include "gsl_errno.h"
 #include "gsl_wavelet.h"
 
 gsl_wavelet *
@@ -31,8 +31,10 @@ gsl_wavelet_alloc (const gsl_wavelet_type * T, size_t k)
 
   if (w == NULL)
     {
-      GSL_ERROR_VAL ("failed to allocate space for wavelet struct",
-                     GSL_ENOMEM, 0);
+      printf("Error!");
+      return NULL;
+      // GSL_ERROR_VAL ("failed to allocate space for wavelet struct",
+      //                GSL_ENOMEM, 0);
     };
 
   w->type = T;
@@ -43,7 +45,8 @@ gsl_wavelet_alloc (const gsl_wavelet_type * T, size_t k)
   if (status)
     {
       free (w);
-      GSL_ERROR_VAL ("invalid wavelet member", GSL_EINVAL, 0);
+      printf("Error!");
+      return NULL;
     }
 
   return w;
@@ -100,14 +103,16 @@ gsl_wavelet_workspace_alloc (size_t n)
 
   if (n == 0)
     {
-      GSL_ERROR_VAL ("length n must be positive integer", GSL_EDOM, 0);
+      printf("Error!");
+      return NULL;
     }
 
   work = (gsl_wavelet_workspace *) malloc (sizeof (gsl_wavelet_workspace));
 
   if (work == NULL)
     {
-      GSL_ERROR_VAL ("failed to allocate struct", GSL_ENOMEM, 0);
+      printf("Error!");
+      return NULL;
     }
 
   work->n = n;
@@ -117,7 +122,8 @@ gsl_wavelet_workspace_alloc (size_t n)
     {
       /* error in constructor, prevent memory leak */
       free (work);
-      GSL_ERROR_VAL ("failed to allocate scratch space", GSL_ENOMEM, 0);
+      printf("Error!");
+      return NULL;
     }
 
   return work;

@@ -2,18 +2,18 @@
 #include <math.h>
 #include "gsl_wavelet.h"
 
-int absmax(int *array, int N) {
-  int max;
-  int i;
+double absmax(double *array, int N) {
+        double max;
+        int i;
 
-  max = 0.0;
-  for (i = 0; i < N; ++i) {
-    if (abs(array[i]) >= max) {
-      max = abs(array[i]);
-    }
-  }
+        max = 0.0;
+        for (i = 0; i < N; ++i) {
+                if (fabs(array[i]) >= max) {
+                        max = fabs(array[i]);
+                }
+        }
 
-  return max;
+        return max;
 }
 
 int
@@ -22,7 +22,7 @@ main (int argc, char **argv)
   (void)(argc); /* avoid unused parameter warning */
   int i;
   int n = 2048;
-  int *data = malloc (n * sizeof (int));
+  double *data = malloc (n * sizeof (double));
   //double *abscoeff = malloc (n * sizeof (double));
   //size_t *p = malloc (n * sizeof (size_t));
 
@@ -36,32 +36,32 @@ main (int argc, char **argv)
   printf("HEY!!\n");
   f = fopen (argv[1], "r");
   for (i = 0; i < n; i++)
-  {
-   fscanf (f, "%d", &data[i]);
-  }
+   {
+     fscanf (f, "%lg", &data[i]);
+   }
   fclose (f);
 
   gsl_wavelet_transform_forward (w, data, 1, n, work);
 
   for (i = 0; i < n; i++)
-  {
-    data[i] = abs (data[i]);
-  }
+    {
+      data[i] = fabs (data[i]);
+    }
 
-  int cd0[1];
-  int cd1[2];
-  int cd2[4];
-  int cd3[8];
-  int cd4[16];
-  int cd5[32];
-  int cd6[64];
-  int cd7[128];
-  int cd8[256];
-  int cd9[512];
-  int cd10[1024];
+  double cd0[1];
+  double cd1[2];
+  double cd2[4];
+  double cd3[8];
+  double cd4[16];
+  double cd5[32];
+  double cd6[64];
+  double cd7[128];
+  double cd8[256];
+  double cd9[512];
+  double cd10[1024];
 
   for (i = 0; i < 2048; ++i) {
-    printf("%d",data[i]);
+    printf("%f ",data[i]);
     if (i<2) cd0[0] = data[i];
     else if (i<4) cd1[i-2] = data[i];
     else if (i<8) cd2[i-4] = data[i];
@@ -99,7 +99,7 @@ main (int argc, char **argv)
   if(absmax(cd1,2) >= 750) {
     printf("cd1 beat \n");
   }
-
+  
   gsl_wavelet_free (w);
   gsl_wavelet_workspace_free (work);
 

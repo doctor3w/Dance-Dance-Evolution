@@ -75,3 +75,7 @@ DerivedData/
 *.perspectivev3
 !default.perspectivev3
 
+/pic32_proj_buffer/lab5_buffer.X/nbproject/private/
+/pic32_proj_buffer/lab5_buffer.X/dist/default/
+/pic32_proj_wavelet/lab5_wavelet.X/nbproject/private/
+/pic32_proj_wavelet/lab5_wavelet.X/dist/default/

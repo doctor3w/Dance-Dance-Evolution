@@ -6,9 +6,6 @@
                    projectFiles="true">
       <itemPath>../pt_cornell_1_2_1.h</itemPath>
       <itemPath>../config.h</itemPath>
-      <itemPath>../gsl_errno.h</itemPath>
-      <itemPath>../gsl_types.h</itemPath>
-      <itemPath>../gsl_wavelet.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -18,9 +15,6 @@
                    displayName="Source Files"
                    projectFiles="true">
       <itemPath>../lab5.c</itemPath>
-      <itemPath>../dwt.c</itemPath>
-      <itemPath>../haar.c</itemPath>
-      <itemPath>../wavelet.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

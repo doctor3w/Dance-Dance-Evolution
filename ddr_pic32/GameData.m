@@ -23,7 +23,7 @@ NSString *GAME_OBJECT_NEW_NOTIFICATION = @"GameObjectNewNotification";
 const double GAME_ASPECT = 16.0 / 10.0;
 const double GAME_UPDATE_DURATION = 0.03;
 
-const double ARROW_SPEED = 0.35;
+const double ARROW_SPEED = 0.55;
 const double ARROW_SIZE = 0.1;
 const double HALF_ARROW_PAD = 0.02;
 

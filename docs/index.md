@@ -115,10 +115,10 @@ should put links to other pages/github here
 | Part                               | Quantity | Cost   |
 | ---------------------------------- | :------- | ------ |
 | Force Sensitive Resistors (FSR402) | 10       | $0.00  |
-| Auxillary Audio Cord               | 1        |        |
-| 10"x10" Canvas Boards              | 5        |        |
+| Auxillary Audio Cord               | 1        | $1.74  |
+| 10"x10" Canvas Boards              | 5        | $10.00 |
 | PIC32 Large Development Board      | 1        | $10.00 |
-| Serial to Serial Cable             | 1        |        |
+| Serial to Serial Cable             | 1        | $5.00  |
 | 1/4" 20 Hex Nuts                   | 28       |        |
 | Jumper Cables                      | ???      |        |
 | 6" Solder Board                    | 1        | $2.50  |
@@ -129,7 +129,7 @@ should put links to other pages/github here
 | PIC32MX250F128B                    | 1        | $5.00  |
 | 23LC1024 SRAM                      | 1        |        |
 |                                    |          |        |
-| **TOTAL**                          |          | $20.50 |
+| **TOTAL**                          |          | $37.24 |
 
 ---
 
@@ -141,7 +141,7 @@ Drew focused on:
 * Getting the SRAM to work
 * Buffering audio
 * Data transfer between PIC and Mac
-* Writing the entire Mac app!
+* Writing the Mac app
 
 Michael focused on:
 

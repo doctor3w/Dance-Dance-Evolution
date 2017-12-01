@@ -16,6 +16,7 @@
 #import "GameData.h"
 
 const double GAME_OBJECT_BOUNDARY_EXCESS = 0.1;
+const double OUTLINE_Y = 0.90;
 
 @implementation GameObject
 
@@ -87,18 +88,15 @@ const double GAME_OBJECT_BOUNDARY_EXCESS = 0.1;
 	{
 		x = GAME_ASPECT + 0.5 * width;
 	}
-	
-	if (y > 1.0 + (0.5 + GAME_OBJECT_BOUNDARY_EXCESS) * height)
-	{
+    
+    
+    if (y > OUTLINE_Y + height*0.1) {
         [[GameData sharedGameData] setSeqToHit:self.secNum+1];
-//        self.visible = NO;
-        [[GameData sharedGameData] setSeqToHit:self.secNum+1];
-//        [[GameData sharedGameData] removeGameObjectForKey:self.keyInGameData];
-        return YES;
-//        y = -0.5 * height;
-	}
-	else if (y < -(0.5 + GAME_OBJECT_BOUNDARY_EXCESS) * height)
-	{
+    }
+    
+	if (y > 1.0 + 0.5 * height) {
+        self.visible = NO;
+	} else if (y < -(0.5 + GAME_OBJECT_BOUNDARY_EXCESS) * height) {
 		y = 1.0 + 0.5 * height;
 	}
 	

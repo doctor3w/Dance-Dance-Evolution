@@ -90,11 +90,16 @@
 		NSMutableDictionary *value = [change objectForKey:NSKeyValueChangeNewKey];
 		if ([value isEqual:[NSNull null]])
 		{
+            [CATransaction begin];
+            [CATransaction
+             setValue:[NSNumber numberWithBool:YES]
+             forKey:kCATransactionDisableActions];
 			[self removeFromSuperlayer];
-			
+            [CATransaction commit];
+//            [[[GameData sharedGameData] gameObjects] removeObserver:self forKeyPath:gameObjectKey];
 			return;
-		}
-		
+        }
+        
 		[self update];
 		return;
 	}

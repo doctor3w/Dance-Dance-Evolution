@@ -246,7 +246,8 @@ inline void setup_adc(void) {
   /////////////////////////////////////////////
 }
 
-#define MAX_ADDR 0x1FFFF
+//#define MAX_ADDR 0x1FFFF
+#define MAX_ADDR 0x16B84
 #define MIN_ADDR 0x00000
 
 int w_addr = 0x0, r_addr = 0x0;

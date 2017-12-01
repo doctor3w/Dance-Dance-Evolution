@@ -162,14 +162,19 @@ void __ISR(_TIMER_2_VECTOR, ipl2) Timer2Handler(void)
 volatile char should_send = 0;
 volatile char arrows_to_send = 0x0;
 
-#define CD1_THRESHOLD  750
-#define CD2_THRESHOLD 1800
-#define CD3_THRESHOLD 1800
-#define CD4_THRESHOLD 1500
-#define CD5_THRESHOLD 1500
-#define CD6_THRESHOLD 1000
-#define CD7_THRESHOLD  600
-#define CD8_THRESHOLD  400
+#define CD1_THRESHOLD  200
+#define CD2_THRESHOLD  200
+#define CD3_THRESHOLD  300
+#define CD4_THRESHOLD  300
+#define CD5_THRESHOLD  200
+#define CD6_THRESHOLD  200
+#define CD7_THRESHOLD  100
+#define CD8_THRESHOLD   80
+#define CD9_THRESHOLD   80
+
+#define RC_FILTER(new_val, old_val) ((old_val - new_val) >> 1) + ((old_val - new_val) >> 2) + new_val
+
+static int cd_beats[9];
 
 // === Thread 5 ======================================================
 // update a 1 second tick counter
@@ -177,8 +182,12 @@ static PT_THREAD (protothread_proc(struct pt *pt))
 {
   PT_BEGIN(pt);
   int i;
+  int cd1_val, cd2_val, cd3_val, cd4_val, 
+          cd5_val, cd6_val, cd7_val, cd8_val,
+          cd9_val;
   char cd1_beat, cd2_beat, cd3_beat, cd4_beat, 
-          cd5_beat, cd6_beat, cd7_beat, cd8_beat;
+          cd5_beat, cd6_beat, cd7_beat, cd8_beat,
+          cd9_beat;
   while(1) {
     PT_WAIT_UNTIL(pt, samples_full);
     
@@ -187,21 +196,42 @@ static PT_THREAD (protothread_proc(struct pt *pt))
     gsl_wavelet_alloc (w, gsl_wavelet_haar, 2);
     gsl_wavelet_transform_forward (w, data, 1, SAMPLE_SIZE, work);
 
-    cd1_beat  = absmax(data,   2,   4) >= CD1_THRESHOLD;
-    cd2_beat  = absmax(data,   4,   8) >= CD2_THRESHOLD;
-    cd3_beat  = absmax(data,   8,  16) >= CD3_THRESHOLD;
-    cd4_beat  = absmax(data,  16,  32) >= CD4_THRESHOLD;
-    cd5_beat  = absmax(data,  32,  64) >= CD5_THRESHOLD;
-    cd6_beat  = absmax(data,  64, 128) >= CD6_THRESHOLD;
-    cd7_beat  = absmax(data, 128, 256) >= CD7_THRESHOLD;
-    cd8_beat  = absmax(data, 256, 512) >= CD8_THRESHOLD;
+    cd1_val  = absmax(data,   2,   4);
+    cd2_val  = absmax(data,   4,   8);
+    cd3_val  = absmax(data,   8,  16);
+    cd4_val  = absmax(data,  16,  32);
+    cd5_val  = absmax(data,  32,  64);
+    cd6_val  = absmax(data,  64, 128);
+    cd7_val  = absmax(data, 128, 256);
+    cd8_val  = absmax(data, 256, 512);
+    cd9_val  = absmax(data, 512, 1024);
+    
+    cd1_beat = cd1_val - cd_beats[0] >= CD1_THRESHOLD;
+    cd2_beat = cd2_val - cd_beats[1] >= CD2_THRESHOLD;
+    cd3_beat = cd3_val - cd_beats[2] >= CD3_THRESHOLD;
+    cd4_beat = cd4_val - cd_beats[3] >= CD4_THRESHOLD;
+    cd5_beat = cd5_val - cd_beats[4] >= CD5_THRESHOLD;
+    cd6_beat = cd6_val - cd_beats[5] >= CD6_THRESHOLD;
+    cd7_beat = cd7_val - cd_beats[6] >= CD7_THRESHOLD;
+    cd8_beat = cd8_val - cd_beats[7] >= CD8_THRESHOLD;
+    cd9_beat = cd9_val - cd_beats[8] >= CD9_THRESHOLD;
+    
+    cd_beats[0] = RC_FILTER(cd1_val, cd_beats[0]);
+    cd_beats[1] = RC_FILTER(cd2_val, cd_beats[1]);
+    cd_beats[2] = RC_FILTER(cd3_val, cd_beats[2]);
+    cd_beats[3] = RC_FILTER(cd4_val, cd_beats[3]);
+    cd_beats[4] = RC_FILTER(cd5_val, cd_beats[4]);
+    cd_beats[5] = RC_FILTER(cd6_val, cd_beats[5]);
+    cd_beats[6] = RC_FILTER(cd7_val, cd_beats[6]);
+    cd_beats[7] = RC_FILTER(cd8_val, cd_beats[7]);
+    cd_beats[8] = RC_FILTER(cd9_val, cd_beats[8]);
     
     // Arrow generation
     arrows_to_send = 0;
-    arrows_to_send |= (!(cd1_beat || cd2_beat)) << 0;
-    arrows_to_send |= (!(cd3_beat || cd4_beat)) << 1;
+    arrows_to_send |= (!(cd1_beat || cd4_beat)) << 0;
+    arrows_to_send |= (!(cd7_beat || cd8_beat || cd9_beat)) << 1;
     arrows_to_send |= (!(cd5_beat || cd6_beat)) << 2;
-    arrows_to_send |= (!(cd7_beat || cd8_beat)) << 3;
+    arrows_to_send |= (!(cd2_beat || cd3_beat)) << 3;
     
     if (arrows_to_send != 0b00001111) should_send = 1;
 

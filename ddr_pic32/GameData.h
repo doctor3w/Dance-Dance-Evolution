@@ -39,6 +39,7 @@ typedef enum {
     NSInteger seqToHit;
     
     NSMutableDictionary *gameData;
+    NSInteger score;
 }
 
 + (GameData *)sharedGameData;
@@ -69,8 +70,8 @@ extern const double GAME_ASPECT;
 extern const double GAME_UPDATE_DURATION;
 
 extern NSString *ARROW_KEY_BASE;
-extern NSString *GAME_DATA_SCORE_KEY;
-extern NSString *GAME_DATA_MSG_KEY;
+extern NSString *GAME_DATA_SCORE_NOTIFICATION;
+extern NSString *GAME_DATA_MSG_NOTIFICATION;
 
 
 

@@ -17,25 +17,27 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-#include "config.h"
+//#include "config.h"
 #include <stdlib.h>
 // #include "gsl_errno.h"
 #include "gsl_wavelet.h"
 
-gsl_wavelet *
-gsl_wavelet_alloc (const gsl_wavelet_type * T, size_t k)
+#define RETURN_IF_NULL(x) if (!x) { return ; }
+
+void
+gsl_wavelet_alloc (gsl_wavelet *w, const gsl_wavelet_type * T, size_t k)
 {
   int status;
 
-  gsl_wavelet *w = (gsl_wavelet *) malloc (sizeof (gsl_wavelet));
+  //gsl_wavelet *w = (gsl_wavelet *) malloc (sizeof (gsl_wavelet));
 
   if (w == NULL)
-    {
-      printf("Error!");
-      return NULL;
-      // GSL_ERROR_VAL ("failed to allocate space for wavelet struct",
-      //                GSL_ENOMEM, 0);
-    };
+  {
+    printf("Error!");
+    return;
+    // GSL_ERROR_VAL ("failed to allocate space for wavelet struct",
+    //                GSL_ENOMEM, 0);
+  };
 
   w->type = T;
 
@@ -44,19 +46,19 @@ gsl_wavelet_alloc (const gsl_wavelet_type * T, size_t k)
 
   if (status)
     {
-      free (w);
+//      free (w);
       printf("Error!");
-      return NULL;
+      return;
     }
 
-  return w;
+  return;
 }
 
 void
 gsl_wavelet_free (gsl_wavelet * w)
 {
   RETURN_IF_NULL (w);
-  free (w);
+//  free (w);
 }
 
 const char *
@@ -96,45 +98,45 @@ gsl_wavelet_print (const gsl_wavelet * w)
 }
 #endif
 
-gsl_wavelet_workspace *
-gsl_wavelet_workspace_alloc (size_t n)
-{
-  gsl_wavelet_workspace *work;
-
-  if (n == 0)
-    {
-      printf("Error!");
-      return NULL;
-    }
-
-  work = (gsl_wavelet_workspace *) malloc (sizeof (gsl_wavelet_workspace));
-
-  if (work == NULL)
-    {
-      printf("Error!");
-      return NULL;
-    }
-
-  work->n = n;
-  work->scratch = (int *) malloc (n * sizeof (int));
-
-  if (work->scratch == NULL)
-    {
-      /* error in constructor, prevent memory leak */
-      free (work);
-      printf("Error!");
-      return NULL;
-    }
-
-  return work;
-}
+//gsl_wavelet_workspace *
+//gsl_wavelet_workspace_alloc (size_t n)
+//{
+//  gsl_wavelet_workspace *work;
+//
+//  if (n == 0)
+//    {
+//      printf("Error!");
+//      return NULL;
+//    }
+//
+//  work = (gsl_wavelet_workspace *) malloc (sizeof (gsl_wavelet_workspace));
+//
+//  if (work == NULL)
+//    {
+//      printf("Error!");
+//      return NULL;
+//    }
+//
+//  work->n = n;
+//  work->scratch = (int *) malloc (n * sizeof (int));
+//
+//  if (work->scratch == NULL)
+//    {
+//      /* error in constructor, prevent memory leak */
+//      free (work);
+//      printf("Error!");
+//      return NULL;
+//    }
+//
+//  return work;
+//}
 
 void
 gsl_wavelet_workspace_free (gsl_wavelet_workspace * work)
 {
   RETURN_IF_NULL (work);
   /* release scratch space */
-  free (work->scratch);
-  work->scratch = NULL;
-  free (work);
+//  free (work->scratch);
+//  work->scratch = NULL;
+//  free (work);
 }

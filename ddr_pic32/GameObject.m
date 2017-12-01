@@ -20,6 +20,7 @@ const double GAME_OBJECT_BOUNDARY_EXCESS = 0.1;
 @implementation GameObject
 
 @synthesize keyInGameData;
+@synthesize secNum;
 @synthesize angle;
 @synthesize x;
 @synthesize y;
@@ -89,9 +90,11 @@ const double GAME_OBJECT_BOUNDARY_EXCESS = 0.1;
 	
 	if (y > 1.0 + (0.5 + GAME_OBJECT_BOUNDARY_EXCESS) * height)
 	{
-        self.visible = NO;
+        [[GameData sharedGameData] setSeqToHit:self.secNum+1];
+//        self.visible = NO;
+        [[GameData sharedGameData] setSeqToHit:self.secNum+1];
 //        [[GameData sharedGameData] removeGameObjectForKey:self.keyInGameData];
-//        return YES;
+        return YES;
 //        y = -0.5 * height;
 	}
 	else if (y < -(0.5 + GAME_OBJECT_BOUNDARY_EXCESS) * height)

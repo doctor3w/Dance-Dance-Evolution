@@ -75,7 +75,7 @@ GSL_VAR const gsl_wavelet_type *gsl_wavelet_haar_centered;
 GSL_VAR const gsl_wavelet_type *gsl_wavelet_bspline;
 GSL_VAR const gsl_wavelet_type *gsl_wavelet_bspline_centered;
 
-gsl_wavelet *gsl_wavelet_alloc (const gsl_wavelet_type * T, size_t k);
+void gsl_wavelet_alloc (gsl_wavelet *w, const gsl_wavelet_type * T, size_t k);
 void gsl_wavelet_free (gsl_wavelet * w);
 const char *gsl_wavelet_name (const gsl_wavelet * w);
 

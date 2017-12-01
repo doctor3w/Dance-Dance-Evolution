@@ -15,27 +15,8 @@
 // threading library
 #include "pt_cornell_1_2_1.h"
 #include <stdlib.h>
-#include <math.h>
-#include "gsl_wavelet.h"
 
-// === thread structures ============================================
-// semaphores for controlling two threads
-// for guarding the UART and for allowing stread blink control
-//static struct pt_sem control_t1, control_t2, control_t6  ;
-// thread control structs
-// note that UART input and output are threads
-static struct pt pt_tick, pt_proc;
-// uart control threads
-static struct pt pt_input, pt_output, pt_DMA_output ;
-// system 1 second interval tick
-int sys_time_half_seconds ;
-
-// === RAM test data ====================================================
-// some data to write
-char test_data[]={2, 4, 6, 8, 10, 100, 200, 255}; // 8
-char test_data2[8];
-
-int test_addr = 0x0;
+// === RAM data ====================================================
 int ram_read = 0;
 int adc_read = 0;
 
@@ -226,37 +207,6 @@ int ram_read_byte_array(int addr, char* data, int count){
     return ;
 }
 
-// inclusive low to exclusive high
-int absmax(int *array, int l, int h) {
-  int max;
-  int i;
-  int a;
-
-  max = 0;
-  for (i = l; i < h; ++i) {
-    a = abs(array[i]);
-    if (a > max)
-      max = a;
-  }
-
-  return max;
-}
-
-// === Thread 5 ======================================================
-// update a 1 second tick counter
-static PT_THREAD (protothread_tick(struct pt *pt))
-{
-    PT_BEGIN(pt);
-
-      while(1) {
-            // yield time 1 second
-            PT_YIELD_TIME_msec(1000) ;
-            sys_time_half_seconds++ ;
-            // NEVER exit while
-      } // END WHILE(1)
-  PT_END(pt);
-} // thread 4
-
 inline void setup_adc(void) {
   /////////////////// ADC //////////////////////
   // configure and enable the ADC
@@ -299,35 +249,15 @@ inline void setup_adc(void) {
 #define MAX_ADDR 0x1FFFF
 #define MIN_ADDR 0x00000
 
-#define SAMPLE_SIZE   2048
-static const unsigned short SAMPLE_SIZE_2 = 2 * SAMPLE_SIZE;
-
 int w_addr = 0x0, r_addr = 0x0;
 char r_valid= 0;
-
-short samples[SAMPLE_SIZE];
-size_t sample_num = 0; // MAX is 4096
-volatile char samples_full = 0;
-
-int data[SAMPLE_SIZE];
-int scratch[SAMPLE_SIZE];
-
-static gsl_wavelet wave;
-gsl_wavelet *w = &wave;
-
-static gsl_wavelet_workspace workspace = { scratch, 2048 };
-gsl_wavelet_workspace *work = &workspace;
-
-char write_buf[8];
-size_t write_buf_i = 0;
 
 void __ISR(_TIMER_2_VECTOR, ipl2) Timer2Handler(void)
 {
   // 74 cycles to get to this point from timer event
   mT2ClearIntFlag();
-  mPORTBSetBits( BIT_9 );
-//  mPORTBSetBits(BIT_0);
-  adc_read = ReadADC10(0); 
+    
+  adc_read = ReadADC10(0);
   AcquireADC10();
   
   ram_write_byte(w_addr, adc_read>>2);  
@@ -336,7 +266,7 @@ void __ISR(_TIMER_2_VECTOR, ipl2) Timer2Handler(void)
     dac_write_byte(ram_read<<4); // Writes to channel A
   }
   
-//  w_addr += 1;
+  w_addr += 1;
   r_addr += 1;
   if (w_addr == MAX_ADDR - 1) {
     // set r_addr to MIN_ADDR
@@ -346,65 +276,10 @@ void __ISR(_TIMER_2_VECTOR, ipl2) Timer2Handler(void)
   if (w_addr > MAX_ADDR) {
     w_addr = MIN_ADDR;
   }
-  mPORTBClearBits( BIT_9 );
-//  mPORTBClearBits(BIT_0);
 }
 
-volatile char should_send = 0;
-volatile char arrows_to_send = 0x0;
-
-int prev_send_time = 0;
-
-// === Thread 5 ======================================================
-// update a 1 second tick counter
-static PT_THREAD (protothread_input(struct pt *pt))
-{
-    PT_BEGIN(pt);
-    char send_byte;
-    char send_seq;
-    while(1) {
-        // yield time 1 second
-        PT_YIELD_TIME_msec(60) ;
-//        mPORTBClearBits( BIT_9 );
-//        mPORTBSetBits( BIT_8 );
-
-        // TODO: READ IO
-        send_byte = 0;
-        send_seq = 0; // no arrow
-        send_byte |= (mPORTBReadBits( BIT_7 ) == 0) << 4;
-//        send_byte |= (mPORTBReadBits( BIT_8 ) == 0) << 5;
-//        send_byte |= (mPORTBReadBits( BIT_9 ) == 0) << 6;
-//        send_byte |= (mPORTBReadBits( BIT_13 ) == 0) << 7;
-        // 0000, 0001, 0010, 0100, 1000
-
-        // send the prompt via DMA to serial
-//        send_byte = (~send_byte) << 4;
-//        sprintf(PT_send_buffer,"%d",send_byte);
-//        if (prev_send_time != sys_time_half_seconds) {
-//            send_seq = (0b11110110) & 0x0f; 
-//            prev_send_time = sys_time_half_seconds;
-//        } else {
-//            send_seq = 0x0f;
-//        }
-        send_seq = 0x0f;
-        if (should_send) {
-          send_seq = arrows_to_send; 
-          should_send = 0;
-        }
-        send_byte |= send_seq;
-        PT_send_buffer[0] = send_byte;
-//        PT_send_buffer[1] = '\n';
-        // by spawning a print thread
-        PT_SPAWN(pt, &pt_DMA_output, PT_DMA_PutSerialBuffer(&pt_DMA_output) );
-        
-//        mPORTBClearBits( BIT_8 );
-        // NEVER exit while
-    } // END WHILE(1)
-    PT_END(pt);
-} // thread 4
-
 // === Main  ======================================================
-// set up UART, threads
+// set up UART
 // then schedule them as fast as possible
 
 int main(void)
@@ -424,19 +299,11 @@ int main(void)
   // SDI2 (MISO) is PPS output group 3, could be connected to RPA2 which is pin 9
   PPSInput(3,SDI2,RPA2);
 
-  // BIT_0 = RAM 1, BIT_1 = RAM 2, BIT_4 = DAC
+  // BIT_0 = RAM 1, BIT_4 = DAC
   // control CS for RAM (bit 0) and for DAC (bit 1)
   mPORTBSetPinsDigitalOut(BIT_0 | BIT_4);
   //and set both bits to turn off both enables
   mPORTBSetBits(BIT_0 | BIT_4);
-  
-//  EnablePullDownB( BIT_7 | BIT_8 | BIT_9 | BIT_13 );
-  EnablePullDownB( BIT_7 | BIT_8 | BIT_13 );
-//  mPORTBSetPinsDigitalIn( BIT_7 | BIT_8 | BIT_9 | BIT_13 );
-  mPORTBSetPinsDigitalIn( BIT_7 | BIT_8 | BIT_13 );
-  
-  mPORTBSetPinsDigitalOut( BIT_9 | BIT_8 );
-  mPORTBClearBits( BIT_9 | BIT_8 );
         
   // divide Fpb by 2, configure the I/O ports. Not using SS in this example
   // 8 bit transfer CKP=1 CKE=1
@@ -448,20 +315,7 @@ int main(void)
           spiClkDiv
     );
   
-  // === now the threads ====================
 
-  // init the threads
-  PT_INIT(&pt_tick);
-  PT_INIT(&pt_input);
-  PT_INIT(&pt_proc);
-  
-//  ram_write_byte_array(test_addr, test_data, 8);
-//  int i;
-//  for (i = 0; i < 0x1ffff; i += 8) {
-//      ram_write_byte_array(test_addr, test_data, 8);
-//      test_addr += 8;
-//  }
-//  test_addr = 0x0;
   w_addr = 0x0;
   r_addr = 0x0;
   
@@ -474,11 +328,6 @@ int main(void)
   mT2ClearIntFlag(); // and clear the interrupt flag
   /////////////////////////////////////////
         
-  // schedule the threads
-  while(1) {
-    // round robin
-    PT_SCHEDULE(protothread_tick(&pt_tick));
-    PT_SCHEDULE(protothread_input(&pt_input));
-    PT_SCHEDULE(protothread_proc(&pt_proc));
-  }
+  // loop forever
+  while(1);
 } // main

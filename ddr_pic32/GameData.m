@@ -23,7 +23,7 @@ NSString *GAME_OBJECT_NEW_NOTIFICATION = @"GameObjectNewNotification";
 const double GAME_ASPECT = 16.0 / 10.0;
 const double GAME_UPDATE_DURATION = 0.03;
 
-const double ARROW_SPEED = 0.35;
+const double ARROW_SPEED = 0.55;
 const double ARROW_SIZE = 0.1;
 const double HALF_ARROW_PAD = 0.02;
 
@@ -254,6 +254,7 @@ NSString *GAME_DATA_SCORE_KEY = @"score";
                                               visible:YES];
             arrowObj.trajectory = M_PI / 2;
             arrowObj.speed = ARROW_SPEED;
+            arrowObj.secNum = nextSeq;
             [self addGameObject:arrowObj forKey:[GameData keyForArrow:arrow withKey:key]];
         }
         arrow_seq = arrow_seq >> 1;
@@ -296,9 +297,11 @@ NSString *GAME_DATA_SCORE_KEY = @"score";
         
         // Game Logic
         
+        
         NSString *key = [GameData keyForArrow:arrow withKey:seq_num];
         GameObject *arr = [[self gameObjects] objectForKey:key];
         if (arr.y > arrowObj.y - ARROW_SIZE*1.5 && arr.y < arrowObj.y + ARROW_SIZE*1.5) {
+            NSLog(@"seq: %@",seq_num);
             // Hit attempt possible
             if (is_highlighted) { // Attempted hit!
                 // add to score
@@ -308,13 +311,19 @@ NSString *GAME_DATA_SCORE_KEY = @"score";
                 [gameData willChangeValueForKey:GAME_DATA_SCORE_KEY];
                 [gameData setValue:[NSNumber numberWithInteger:score] forKey:GAME_DATA_SCORE_KEY];
                 [gameData didChangeValueForKey:GAME_DATA_SCORE_KEY];
+                arr.visible = NO;
                 seqToHit++;
+                [gameObjects removeObjectForKey:key];
              }
         }
         
         arrowObj.opacity = is_highlighted ? 1 : 0.5;
         highlights = highlights >> 1;
     }
+}
+
+- (void)setSeqToHit:(NSInteger)num {
+    seqToHit = num;
 }
 
 #pragma mark Game Loops

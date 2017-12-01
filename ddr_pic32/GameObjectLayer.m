@@ -108,14 +108,14 @@
 //
 // Releases instance memory.
 //
-//- (void)dealloc
-//{
-//    if (gameObjectKey)
-//    {
-//        [[[GameData sharedGameData] gameObjects] removeObserver:self forKeyPath:gameObjectKey];
-//    }
+- (void)dealloc
+{
+    if (gameObjectKey)
+    {
+        [[[GameData sharedGameData] gameObjects] removeObserver:self forKeyPath:gameObjectKey];
+    }
 //    [gameObjectKey release];
 //    [super dealloc];
-//}
+}
 
 @end

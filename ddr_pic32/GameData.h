@@ -59,6 +59,8 @@ typedef enum {
 - (void)addArrowSeq:(unsigned char)sequence;
 - (void)highlightOutlineArrows:(unsigned char)highlights;
 
+- (void)setSeqToHit:(NSInteger)num;
+
 @end
 
 extern NSString *GAME_OBJECT_NEW_NOTIFICATION;

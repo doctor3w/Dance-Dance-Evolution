@@ -10,9 +10,9 @@
 
 ### Background
 
-We designed a version of the traditional arcade game 'Dance Dance Revolution' that synthesizes dance instructions from any audio source using the PIC32. Unlike the original game where you must select from a pre-chosen listing of songs, our device allows one to plug in audio of choice. The arrow instructions are then generated in real-time by buffering the audio and processing it before putting the arrows on screen.
+We designed a version of the traditional arcade game 'Dance Dance Revolution' that synthesizes dance instructions from any audio source using the PIC32. Unlike the original game where you must select from a pre-chosen listing of songs, our device allows one to plug in audio of choice. The arrow instructions are then generated in real-time by buffering the audio and processing it using the discrete wavelet transform before putting the arrows on screen.
 
-We were inspired by a mutual desire to work on a music related project, and both had fond memories of playing the game as children. We also wanted to add some sort of novel, interesting component, so we brainstormed the idea of having the player be able to play whatever song they wanted. This would make the game much more captivating and engaging. All versions of the game have pre-programmed song libraries, so replay value is ultimately limited. Our version has no such limitation. 
+We were inspired by a mutual desire to work on a music related project, and both had fond memories of playing the game. We also wanted to add some sort of novel, interesting component, so we brainstormed the idea of having the player be able to play whatever song they wanted. This would make the game much more captivating and engaging. All versions of the game have pre-programmed song libraries, so replay value is ultimately limited. Our version has no such limitation. We used the discrete wavelet transform to efficiently analyze different frequency components of the signal at a discrete point in time. 
 
  **INSERT PHOTO**
 
@@ -26,6 +26,10 @@ The system requires two kinds of user input: An audio source and button pushes f
 
 We use each of the PIC32s' onboard analog to digital converter (ADC) to sample the signal from an audio jack at 40kHz. The signal is then processed on one PIC in 100 millisecond chunks (approximately 4000 samples) using a discrete wavelet transform (DWT) to determine whether a beat has occurred during that time segment. Because this takes a finite amount of time, we cannot simply play the recieved signal. Rather, we delay the sound using the other PIC and SRAM chip so that arrow instructions appear on the screen approximately 2.4 seconds before the player must press those buttons. The audio is delayed using a 128KB external SRAM, which interfaces with the PIC using serial peripheral interface (SPI) communication protocol. Upon sampling, 10 bit ADC data is truncated to 8 bits and sent to the SRAM. Once the SRAM's memory has filled up, every write is accompanied by a read. The read data is sent to the PIC's digital to analog converter (DAC), where it is played by a speaker. It was necessary to use two PIC32s because we simply did not have enough processing power on a single PIC to handle both buffering and signal processing. Interfacing with the SRAM chip at 40kHz took 60-75% of our CPU, and to try and process that data and have well-timed dance mat input reads was too much to squeeze into one PIC32. 
 
+#### Beat Detection
+
+TODO: EXPLAIN THE MATH
+
 #### Dance Mat User Input
 
 The floor tiles are built using Interlink Electronics' force sensitive resistors, where we have to resistors per tile (in parallel). Each tile functions as a simple voltage divider, where voltage spikes to approximately 3V on a press. We feed the outputs of these dividers to the PIC, where we have selected four pins to act as digital inputs. We send the pressed inputs and the desired arrow instructions to the Mac via UART. The PIC polls the dance mat for input approximately every 60 milliseconds. 
@@ -34,7 +38,7 @@ TODO: INCLUDE SCHEMATIC OF FLOOR TILES
 
 #### macOS Application (Display)
 
-Rather than building any sort of display, we chose to make an app for your Mac computer, an easy way to plug our device in and start playing. The Mac is connected by USB with a UART serial to USB cable (LINK HERE). The application is responsible for reading arrow sequences and currently pressed arrows from the PIC and displaying that accordingly. New sequences are added to the bottom of the screen, where they gradually move up to the top. At the top are faded outline arrows, which when they are pressed on the mat, they become fully opaque. The application is responsible for determining if the user properly presses the correct arrows at the time the current arrow sequence is passing by. If the user is well coordinated and hits a beat, they will receive points based on how on time their press was. 
+Rather than building any sort of display, we chose to make an app for a Mac computer, so that it was easy to plug our device in and start playing. The Mac is connected by USB with a UART serial to USB cable (LINK HERE). The application is responsible for reading arrow sequences and currently pressed arrows from the PIC and displaying that accordingly. New sequences are added to the bottom of the screen, where they gradually move up to the top. At the top are faded outline arrows, which when they are pressed on the mat, they become fully opaque. The application is responsible for determining if the user properly presses the correct arrows at the time the current arrow sequence is passing by. The user recieves points depending on how well they time their presses.
 
 TODO: Include figure of mac display with breakdown
 
@@ -44,7 +48,7 @@ TODO: Include figure of mac display with breakdown
 
 #### macOS Application
 
-As aforementioned, our Mac app reads from the PIC through UART. In order to achieve this we first had to install a driver to the specific serial cable bought for the project. We used one from Prolific, the link to the driver is [here](http://www.prolific.com.tw/US/ShowProduct.aspx?p_id=229&pcid=41). Once we could communicate to the PIC over UART, we need the mac application to be able to communicate through UART as well, and for that we used a framework called [ORSSerialPort](https://github.com/armadsen/ORSSerialPort). This framework allowed us to use a common pattern in Cocoa development called the delegate pattern. We used ORSSerialPort to create a serial port object, which we set our app's view controller as the delegate for, and then an interface function implemented as part of the delegate pattern would be called every time there was new data to read. This made reading from the PIC very simple, as each time that method was called we knew more information had been sent from the PIC. 
+As mentioned before, our Mac app reads from the PIC through UART. In order to achieve this we first had to install a driver to the specific serial cable bought for the project. We used one from Prolific, the link to the driver is [here](http://www.prolific.com.tw/US/ShowProduct.aspx?p_id=229&pcid=41). Once we could communicate to the PIC over UART, we needed the Mac application to be able to communicate through UART as well, and for that we used a framework called [ORSSerialPort](https://github.com/armadsen/ORSSerialPort). This framework allowed us to use a common pattern in Cocoa development called the delegate pattern. We used ORSSerialPort to create a serial port object, which we set our app's view controller as the delegate for, and then an interface function implemented as part of the delegate pattern would be called every time there was new data to read. This made reading from the PIC very simple, as each time that method was called we knew more information had been sent from the PIC. 
 
 The application also displayed the arrow sequences and user input, and this was done by adapting simple CoreAnimation game library developed by Matt Gallagher. This library offers simple game objects, centralized game data, and CoreAnimation layers for the game objects all synchronized with NSTimers and Key-Value Observation. The game data starts a timer upon a new game which calls update functions for each game object currently in the data. Each time they object updates its properties, they value change notifies the game objects attached CoreAnimation layer object to update on the screen. The library was adapted for our arrow objects and the game data now sets a new game up with outline arrows and a score of zero. We also modified how objects were removed from the screen by using CATransactions rather than abruptly removing it, which was causing an odd lag as the arrows moved upwards. 
 
@@ -52,11 +56,11 @@ To combine the game view and the reading of the serial input, we had a view cont
 
 #### Signal Processing and Beat Detection
 
-The idea to use wavelet transforms came from a Cornell class ECE3250, where Professor Delchamps discussed the topic briefly. As an overview - wavelet transforms are a way to quickly assess the frequency of components of a signal with a degree of time resolution. The wavelet  
+The idea to use wavelet transforms came from ECE3250 (Mathematics of Signal and System Analysis), where Professor Delchamps discussed the topic briefly. As an overview - wavelet transforms are a way to quickly assess the frequency of components of a signal with a degree of time resolution. The wavelet  
 
 #### Audio Buffering using External SRAM
 
-
+drew can you get this?
 
 ---
 
@@ -96,11 +100,11 @@ Because the FSRs were small in area (<1 inch square), we added two to each tile 
 
 #### ADD: did we accomplish our goals?
 
-Our project is heavily inspired by the game Dance Dance Revolution, which is indeed a trademarked property. The title 'Dance Dance Evolution' is not trademarked at all, however. In a sense, we did reverse engineer the mechanics of their game, but we could not find a specific patent for the game play mechanism. We do not think our beat detection algorithm/approach is novel enough to patent (see the Tzanetakis paper in our references). We reuse some code written by Bruce Land and Tahmid Mahmud for the course. Since our project is entirely open source and we are not seeking to mass-produce this for profit, we do not think we are violating any intellectual property.
+Our project is heavily inspired by the game Dance Dance Revolution, which is indeed a trademarked property. However, the name 'Dance Dance Evolution' has [no active trademarks associated with it](http://tmsearch.uspto.gov/bin/showfield?f=toc&state=4805%3Aq2zjoa.1.1&p_search=searchss&p_L=50&BackReference=&p_plural=yes&p_s_PARA1=&p_tagrepl~%3A=PARA1%24LD&expr=PARA1+AND+PARA2&p_s_PARA2=dance+dance+evolution&p_tagrepl~%3A=PARA2%24COMB&p_op_ALL=AND&a_default=search&a_search=Submit+Query&a_search=Submit+Query). In a sense, we did reverse engineer the mechanics of their game, but we could not find a specific patent for the game play mechanism. We do not think our beat detection algorithm/approach is novel enough to patent (see the Tzanetakis paper in our references). We reuse some code written by Bruce Land and Tahmid Mahmud for the course. We also relied heavily on the GNU Scientific Library and Matt Gallagher's CoreAnimation library. Since our project is entirely open source and we are not seeking to mass-produce this for profit, we have no reason to believe we are violating any intellectual property.
 
 We believe that our project is fully compliant with IEEE standards. We embarked on the project in an effort to bring an enjoyable, fun game to the masses, and that is ultimately what we ended up doing. Our project's individual components are all harmless: Floor switches, audio buffering, and beat detection. The IEEE code puts emphasis on protecting the public's health and safety. As a result we made special effort to make sure individuals do not trip or injure their feet when playing the game by putting the tiles low to the ground and making sure they would not slide around. As noted above, we do not think we are making any IP violations through the project. Even if our interpretation of the law is incorrect, we doubt that the publication of a single open source version of the Dance Dance Revolution game will cause the game publishers to lose any income. By making our code, schematics, and methodology publically available, we hope to encourage understanding of technology and spark interest in embedded design and signal processing, as per point five of the IEEE Code of Ethics. Moreover, we have noted all contributors and sources of code and ideas. In summation: Our project is fairly benign, and we hope it brings joy to all who play it.
 
-We found no legal issues with our project.
+We found no legal issues with our project. The only concern was that of intellectual property violations, and as noted above, we do not violate any trademarks. 
 
 ---
 
@@ -182,8 +186,8 @@ Michael focused on:
 
 [Datasheet for Interlink FSR402](http://interlinkelectronics.com/datasheets/Datasheet_FSR.pdf)
 
-[PIC32 Peripheral Library AKA The Holy Bible](http://ww1.microchip.com/downloads/en/DeviceDoc/32bitPeripheralLibraryGuide.pdf)
+[PIC32 Peripheral Library](http://ww1.microchip.com/downloads/en/DeviceDoc/32bitPeripheralLibraryGuide.pdf)
 
 [IEEE Code of Ethics](https://www.ieee.org/about/corporate/governance/p7-8.html)
 
-**TWO THINGS TO ADD: SPOTIFY PLAYLIST AND LINK TO OUR GITHUB**
+**THINGS TO ADD: SPOTIFY PLAYLIST/LINK TO OUR GITHUB/link to serial library/link to matt gallaghers animation library**

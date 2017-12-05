@@ -44,11 +44,57 @@ TODO: Include figure of mac display with breakdown
 
 #### macOS Application
 
-As aforementioned, our Mac app reads from the PIC through UART. In order to achieve this we first had to install a driver to the specific serial cable bought for the project. We used one from Prolific, the link to the driver is [here](http://www.prolific.com.tw/US/ShowProduct.aspx?p_id=229&pcid=41). Once we could communicate to the PIC over UART, we need the mac application to be able to communicate through UART as well, and for that we used a framework called [ORSSerialPort](https://github.com/armadsen/ORSSerialPort). This framework allowed us to use a common pattern in Cocoa development called the delegate pattern. We used ORSSerialPort to create a serial port object, which we set our app's view controller as the delegate for, and then an interface function implemented as part of the delegate pattern would be called every time there was new data to read. This made reading from the PIC very simple, as each time that method was called we knew more information had been sent from the PIC. 
+As aforementioned, our Mac app reads from the PIC through UART. In order to achieve this we first had to install a driver to the specific serial cable bought for the project. We used one from Prolific, the link to the driver is [here](http://www.prolific.com.tw/US/ShowProduct.aspx?p_id=229&pcid=41). Once we could communicate to the PIC over UART, we need the mac application to be able to communicate through UART as well, and for that we used a framework called [ORSSerialPort](https://github.com/armadsen/ORSSerialPort). This framework allowed us to use a common pattern in Cocoa development called the delegate pattern. We used ORSSerialPort to create a ORSSerialPort object, which we set our app's view controller as the delegate for, and then an interface function implemented as part of the delegate pattern would be called every time there was new data to read. This made reading from the PIC very simple, as each time that method was called we knew more information had been sent from the PIC. The delegate method called by the serial port object in GameController is shown below.
 
-The application also displayed the arrow sequences and user input, and this was done by adapting simple CoreAnimation game library developed by Matt Gallagher. This library offers simple game objects, centralized game data, and CoreAnimation layers for the game objects all synchronized with NSTimers and Key-Value Observation. The game data starts a timer upon a new game which calls update functions for each game object currently in the data. Each time they object updates its properties, they value change notifies the game objects attached CoreAnimation layer object to update on the screen. The library was adapted for our arrow objects and the game data now sets a new game up with outline arrows and a score of zero. We also modified how objects were removed from the screen by using CATransactions rather than abruptly removing it, which was causing an odd lag as the arrows moved upwards. 
+```objective-c
+// ORSSerialPort delegate method implementation
+// Called every time new data is received from the serial communication. 
+- (void)serialPort:(ORSSerialPort *)serialPort didReceiveData:(NSData *)data
+{
+  if (data.length > 0) {
+    unsigned char byte = ((char *)[data bytes])[0];
+    if (byte != 0) {
+      // Actual game data received. invert bits.
+      unsigned char in_arrows = ((~byte) >> 4) & 0xf; // User selected arrows. 
+      unsigned char new_arrows = (~byte) & 0x0f; // Newly processed arrow sequence. 
+      [[GameData sharedGameData] highlightOutlineArrows:in_arrows];
+      
+      // Prevents the counter from incrementing when there aren't really
+      // new arrows to add. 
+      if (new_arrows != 0) 
+        [[GameData sharedGameData] addArrowSeq:new_arrows];
+    }
+  }
+}
+```
 
-To combine the game view and the reading of the serial input, we had a view controller. Our app used another common Cocoa modeling called MVC, or Model-View-Controller. This idea keeps the model, or data, from interacting directly with the view. The controller handles the interaction between the two. Thus our controller would be the one reading from the serial port, and each time a byte had been sent from the PIC, it would parse those bits for the new arrow sequence as well as the currently pressed arrows. 
+The application also displays the arrow sequences and user input, and this was done by adapting simple CoreAnimation game library developed by Matt Gallagher. This library offers simple game objects with the GameObject class, centralized game data with GameData class, and CoreAnimation layers for the game objects (GameObjectLayer class) all synchronized with NSTimers and Key-Value Observation. The game data starts a timer upon a new game which calls update functions for each game object currently in the data. Each time they object updates its properties, they value change notifies the game objects attached CoreAnimation layer object to update on the screen. The library was adapted for our arrow objects and the game data now sets a new game up with outline arrows and a score of zero. We also modified how objects were removed from the screen by using CATransactions rather than abruptly removing it, which was causing an odd lag as the arrows moved upwards. 
+
+To combine the game view and the reading of the serial input, we had a view controller. Our app used another common Cocoa modeling called MVC, or Model-View-Controller. This idea keeps the model, or data, from interacting directly with the view. The controller handles the interaction between the two. Thus our controller would be the one reading from the serial port, and each time a byte had been sent from the PIC, it would parse those bits for the new arrow sequence as well as the currently pressed arrows. The controller would then instruct the game data to add new arrow objects to the screen and highlight the user arrows as necessary. One hiccup we came across was the serial port library on the Mac would trigger the delegate method with a 0 byte every other trigger. We could not figure out why this happend, so we had to develop a workaround. The solution was to send from the PIC all the data with the bits inverted, because it was rare that all 4 arrows would be pressed and that we'd be adding all four arrows in one sequence which would be the byte `0b11111111`. Hence flipping all the bits allowed us to ignore all 0 bytes, but everything essentially became active low. To handle the adding of the arrow objects and highlighting we defined the following functions inside the GameData class. 
+
+```objective-c
+// Highlights the specified outline arrows with the bottom four 
+// bits of [highlights] being the Left-Down-Up-Right arrows.
+// Also adds to the score based on how close the current sequence is.
+// Removes current sequence from screen if scored. 
+- (void)highlightOutlineArrows:(unsigned char)highlights;
+
+// Called in new game, adds the half opacity outline arrows
+// to the top of the screen to show user input.
+- (void)addOutlineArrows;
+
+// Adds a new arrow sequence to the bottom of the screen with 
+// the bottom four bits of [highlights] being the Left-Down-Up-Right 
+// arrows. Also assigns them an ID number from the running counter in 
+// GameData. 
+- (void)addArrowSeq:(unsigned char)sequence;
+
+// A helper function for aligning the y-value of the arrows with the others
+// in the same sequence (represented by the key).
+- (void)alignHorizontalArrows:(unsigned char)sequence ForKey:(NSString *)key;
+```
+
+Inside of GameData, we have two counters running to keep track of the next sequence number to add and the current sequence number to hit. This allows us to grab the arrow objects by number and add new ones. We also have a score variable, which whenever updated we post a notification for the GameController to update the score label on screen. 
 
 #### Signal Processing and Beat Detection
 

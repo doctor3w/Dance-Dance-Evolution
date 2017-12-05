@@ -268,12 +268,9 @@
     if (data.length > 0) {
         unsigned char byte = ((char *)[data bytes])[0];
         if (byte != 0) {
-            NSLog(@"byte: %d",byte);
             // Actual game data received. invert.
             unsigned char in_arrows = ((~byte) >> 4) & 0xf;
-            NSLog(@"arrows: %d",in_arrows);
             unsigned char new_arrows = (~byte) & 0x0f;
-            NSLog(@"new: %d",new_arrows);
             [[GameData sharedGameData] highlightOutlineArrows:in_arrows];
             if (new_arrows != 0)
                 [[GameData sharedGameData] addArrowSeq:new_arrows];

@@ -88,11 +88,23 @@ Because the FSRs were small in area (<1 inch square), we added two to each tile 
 
 ### Results
 
-#### Speed
+We were ext
+
+#### General Usability
+
+####Beat Detection
+
+The beat detection algorithm was remarkably successful. We tested using a variety of different music and different genres. Once the algorithm was implemented on the PIC and arrows were being sent to the monitor, we had a simple trial and error system of testing. In order to calibrate timing, we would play one drum beat, then measure the difference in time between when it played on the speakers and when the generated arrow reached the top of the screen. We adjusted the buffer size on the PIC and the speed of the arrows on the Mac to achieve synchronous behavior. Once this was done, we simply tried to play as much music as we could. Early attempts at this revealed that preset thresholds simply were not effective at doing beat detection between many different types of music. We then implemented an active averaging system to detect beats (see *Software Design: Signal Processing and Beat Detection*), which proved to be significantly more versatile.
+
+Our algorithm is extremely effective at detecting beats and generating interesting arrow patterns when the music playing has distinctive low frequency components that manifest themselves in short beats. Playing classic rock and other music with loud, repetitive drums (AC/DC's Highway to Hell; Darius Rucker's Wagon Wheel) results in clear beat detection as soon as the drums kick in. Other sounds (guitar modulation, vocals, etc), result in variations in the arrow sequences. Our system also performs very well with electronic music (Mr. FInger's Mystery of Love; LCD Soundsystem's Dance Yourself Clean). These songs also have distinctive drums or quick base notes that make up the beat of the song. Since the base notes here are electronic, and can actually have a melody (as opposed to analog drums which are fairly constant in tone from hit to hit), they can result in really interesting, fun to play patterns.
+
+**INSERT VIDEO HERE**
+
+
 
 ####Safety
 
-#### Usability
+
 
 ---
 
@@ -192,8 +204,10 @@ Michael focused on:
 
 [Datasheet for Interlink FSR402](http://interlinkelectronics.com/datasheets/Datasheet_FSR.pdf)
 
+[Spotify playlist of songs that work well with our system](https://open.spotify.com/user/ikneadthis/playlist/3bhtbVHmOR9QFXgW1xDQiN)
+
 [PIC32 Peripheral Library](http://ww1.microchip.com/downloads/en/DeviceDoc/32bitPeripheralLibraryGuide.pdf)
 
 [IEEE Code of Ethics](https://www.ieee.org/about/corporate/governance/p7-8.html)
 
-**THINGS TO ADD: SPOTIFY PLAYLIST/LINK TO OUR GITHUB/link to serial library/link to matt gallaghers animation library**
+**THINGS TO ADD: LINK TO OUR GITHUB/link to serial library/link to matt gallaghers animation library**

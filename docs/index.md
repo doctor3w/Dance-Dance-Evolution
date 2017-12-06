@@ -383,9 +383,10 @@ macOS Code:
 - [GameObject.h](code/GameObject.h)
 - [GameObject.m](code/GameObject.m)
 
-MATLAB Code:
+MATLAB Models (requires Wavelet Toolbox):
 
-- ​
+- [wavelettest.m](code/wavelettest.m) - Performs DWT on signal, graphs coefficients
+- [song_test.m](code/song_test.m) - Performs DWT on signal, returns beats and times with .1 second resolution
 
 ---
 

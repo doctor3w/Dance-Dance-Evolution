@@ -10,6 +10,8 @@
 
 ### Background
 
+------
+
 We designed a version of the traditional arcade game 'Dance Dance Revolution' that synthesizes dance instructions from any audio source using the PIC32. Unlike the original game where users must select from a pre-selected list of songs, our system allows a user to plug in their audio device and play any song of their choice. The arrow instructions are then generated in real-time by buffering the audio and processing it using the discrete wavelet transform.
 
 We were inspired by a mutual desire to work on a music related project, and both had fond memories of playing this kind of game. We also wanted to add some sort of novel, interesting component, so we brainstormed the idea of having the player be able to play whatever song they wanted. This would make the game much more captivating and engaging. All versions of the game have pre-programmed song libraries, so replay value is ultimately limited. Our version has no such limitation. The discrete wavelet transform was selected as a processing mechanism because we needed both time and frequency resolution, and also needed a very efficient algorithm.
@@ -22,6 +24,8 @@ We were inspired by a mutual desire to work on a music related project, and both
 ---
 
 ### High Level Design
+
+------
 
 The system requires two kinds of user input: An audio source and button pushes from the floor tiles. It then must process those inputs, delay those inputs until processing is done, and display scoring and upcoming button press instructions on a screen. We use two PIC32s to do the aforementioned input processing (one detects beats and reads the dance mat input, the other buffers audio), and we use a macOS application to display the beats and handle scoring. 
 
@@ -84,6 +88,8 @@ Rather than building any sort of display, we chose to make an app for a Mac comp
 ---
 
 ### Software Design
+
+------
 
 #### macOS Application
 
@@ -253,6 +259,8 @@ Note that we do not use all the different coefficient values, because some simpl
 
 ### Hardware Design
 
+------
+
 We used the PIC32 big development board, because it provided the best flexibility for development. It had the DAC already on board, and a variety of pins ready for use. Since we were already running significantly under budget, we had no incentive to cut cost and move to the small board. We also used a second PIC32 on the small board, with connections to the floor tiles and the serial cable. The floor tiles were wired up underneath to a protoboard, and all important signals were fed up to our main protoboard using a ribbon cable.
 
 ####Audio Circuitry
@@ -309,6 +317,8 @@ Our pinouts for each PIC (small and large board) are listed below. In total we u
 
 ### Results
 
+------
+
 #### General Usability
 
 The final product was a success. The audio buffering worked extremely well, user input was clearly visible on the screen, beat detection was fairly good (see the section below), and the Mac app accurately kept track of the score. Our floor tiles were somewhat difficult to use, because they felt very fragile to users who stepped on them. In order to prevent anything from breaking, much of the final testing was then done by stepping on the tiles while standing adjacent to the system (essentially being as delicate as possible). The game was definitely functional, though. Both team members found it exceptionally difficult to play the game because it was simply very hard. On the whole though, it was a successful, usable system. Here's a video of us playing the game (poorly).
@@ -338,6 +348,8 @@ Our project is something that users will physically interact with and use, so we
 ---
 
 ###Conclusions
+
+------
 
 Taken holistically, we were extremely pleased with the outcome of our project. The beat detection and arrow generation on certain songs was extremely good, and resulted in very playable patterns (see Results section). The application ran extremely well on the Mac, and user input using the pad was very straightforward. We attracted quite a lot of attention in the lab while demoing, which was extremely satisfying. Two areas for improvement stood out to us as we completed the project: A) Expanding our beat detection for more areas of music, and B) improving the floor tile system. 
 

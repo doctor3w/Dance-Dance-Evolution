@@ -14,7 +14,9 @@ We designed a version of the traditional arcade game 'Dance Dance Revolution' th
 
 We were inspired by a mutual desire to work on a music related project, and both had fond memories of playing the game. We also wanted to add some sort of novel, interesting component, so we brainstormed the idea of having the player be able to play whatever song they wanted. This would make the game much more captivating and engaging. All versions of the game have pre-programmed song libraries, so replay value is ultimately limited. Our version has no such limitation. We used the discrete wavelet transform to efficiently analyze different frequency components of the signal at a discrete point in time. 
 
- **INSERT PHOTO**
+![Mac App Breakdown](resources/finalpic.JPG)
+
+Figure 1: Our final system (missing power supplies)
 
 ---
 
@@ -32,19 +34,25 @@ The idea to use wavelet transforms came from a Cornell class ECE3250 (Mathematic
 
 ![dwt](resources/dwt.jpg)
 
-Figure _:The Discrete Wavelet Transform (DWT) 
+Figure 2:The Discrete Wavelet Transform (DWT)
 
-The discrete wavelet transform (DWT), is performed on a discrete time signal using the mother wavelet, Ψ. There are many different kinds of mother wavelets, but the easiest to compute is the Haar wavelet (see Figure ). When the Haar wavelet is used, the math to compute each layer of the DWT is fairly simple, requiring only a few multiplies and adds. Moreover, it is recursive and extremely efficient. 
+The discrete wavelet transform (DWT), is performed on a discrete time signal using the mother wavelet, Ψ (see Figure 2). There are many different kinds of mother wavelets, but the easiest to compute is the Haar wavelet (see Figure 3). When the Haar wavelet is used, the math to compute each layer of the DWT is fairly simple, requiring only a few multiplies and adds. Moreover, it is recursive and extremely efficient. 
 
 ![dwt](resources/haar.png)
 
-The DWT outputs a series of coefficient values, which correspond to the energy of the signal at various frequencies. A signal of length L = 2^N will have N sets of coefficients. Each set of coefficients is calculated recursively from the previous set, so each has half as many elements as the set before (the first set has L/2 elements). Together, these can be used to reconstruct the signal, or, in our case, get a general understanding of its frequency components. Each layer of the transform (i.e., each set of the coefficients) represents a different scale of frequencies. The lowest layers of the transform (which have the most elements), represent the highest frequencies, and vice versa. 
+Figure 3: The Haar mother wavelet
+
+The DWT outputs a series of coefficient values, which correspond to the energy of the signal at various frequencies. A signal of length L = 2^N will have N sets of coefficients. Each set of coefficients is calculated recursively from the previous set, so each has half as many elements as the set before (the first set has L/2 elements). Together, these can be used to reconstruct the signal, or, in our case, get a general understanding of its frequency components. Each layer of the transform (i.e., each set of the coefficients) represents a different scale of frequencies. The lowest layers of the transform (which have the most elements), represent the highest frequencies, and vice versa (see Figure 4). 
 
 ![dwt](resources/dwttree.png)
 
-Our initial idea was to perform the wavelet transform, and then set threshold values for each set of coefficients. If the transform produced a value above those coefficients, a beat would be detected. Our final implementation was slightly different, and incorporated averaging to set better thresholds.
+Figure 4: The DWT's process. AX are the approximate coefficients, which are used to calculate the next layer of the transform. DX are the detailed coefficients, used in our algorithm.
 
-TODO: Block diagram
+Our initial idea was to perform the wavelet transform, and then set threshold values for each set of coefficients. If the transform produced a value above those coefficients, a beat would be detected. Our final implementation was slightly different, and incorporated averaging to set better thresholds (see Figure 5).
+
+![Mac App Breakdown](resources/beat_block.png)
+
+Figure 5: A block diagram of our beat detection system
 
 #### Dance Mat User Input
 
@@ -241,7 +249,7 @@ We used the PIC32 big development board, because it provided the best flexibilit
 
 We soldered our audio circuitry on a protoboard to make it easier to debug and to reduce noise. This circuitry was extremely rudimentary. Our audio input jack fed into a 500uF capacitor to cut out any DC component, then we fed it in between two 10KΩ resistors sitting between 3.3V and ground to offset it, so that the ADCs could read it with no clipping. The DAC output was fed directly to an audio jack and speakers. 
 
-**put a photo here!!!! with schematic!**
+![Mac App Breakdown](resources/audioboard.JPG)
 
 #### Floor Tiles
 
@@ -252,6 +260,8 @@ Because the FSRs were small in area (<1 inch square), we added two to each tile 
 !["First Tile"](resources/tile1.jpg)
 
 *Our First Tile*
+
+![Mac App Breakdown](resources/finalmat.JPG)
 
 Our pinouts for each PIC (small and large board) are listed below. In total we used 16 pins. This does not include pins used for Vdd and GND. 
 

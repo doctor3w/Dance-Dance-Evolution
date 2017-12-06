@@ -24,6 +24,8 @@ Figure 1: Our final system (missing power supplies)
 
 The system requires two kinds of user input: An audio source and button pushes from the floor tiles. It then must process those inputs, delay those inputs until processing is done, and display scoring and upcoming button press instructions on a screen. We use two PIC32s to do the aforementioned input processing (one detects beats and reads the dance mat input, the other buffers audio), and we use a macOS application to display the beats and handle scoring. 
 
+**INSERT FIGURE 2 - block diagram here**
+
 #### Audio Input
 
 We use each of the PIC32s' onboard analog to digital converter (ADC) to sample the signal from an audio jack at 40kHz. The signal is then processed on one PIC in 100 millisecond chunks (approximately 4000 samples) using a discrete wavelet transform (DWT) to determine whether a beat has occurred during that time segment. Because this takes a finite amount of time, we cannot simply play the recieved signal. Rather, we delay the sound using the other PIC and SRAM chip so that arrow instructions appear on the screen approximately 2.4 seconds before the player must press those buttons. The audio is delayed using a 128KB external SRAM, which interfaces with the PIC using serial peripheral interface (SPI) communication protocol. Upon sampling, 10 bit ADC data is truncated to 8 bits and sent to the SRAM. Once the SRAM's memory has filled up, every write is accompanied by a read. The read data is sent to the PIC's digital to analog converter (DAC), where it is played by a speaker. It was necessary to use two PIC32s because we simply did not have enough processing power on a single PIC to handle both buffering and signal processing. Interfacing with the SRAM chip at 40kHz took 60-75% of our CPU, and to try and process that data and have well-timed dance mat input reads was too much to squeeze into one PIC32. 
@@ -34,37 +36,37 @@ The idea to use wavelet transforms came from a Cornell class ECE3250 (Mathematic
 
 ![dwt](resources/dwt.jpg)
 
-Figure 2:The Discrete Wavelet Transform (DWT)
+Figure 3: The Discrete Wavelet Transform (DWT)
 
-The discrete wavelet transform (DWT), is performed on a discrete time signal using the mother wavelet, Ψ (see Figure 2). There are many different kinds of mother wavelets, but the easiest to compute is the Haar wavelet (see Figure 3). When the Haar wavelet is used, the math to compute each layer of the DWT is fairly simple, requiring only a few multiplies and adds. Moreover, it is recursive and extremely efficient. 
+The discrete wavelet transform (DWT), is performed on a discrete time signal using the mother wavelet, Ψ (see Figure 3). There are many different kinds of mother wavelets, but the easiest to compute is the Haar wavelet (see Figure 4). When the Haar wavelet is used, the math to compute each layer of the DWT is fairly simple, requiring only a few multiplies and adds. Moreover, it is recursive and extremely efficient. 
 
 ![dwt](resources/haar.png)
 
-Figure 3: The Haar mother wavelet
+Figure 4: The Haar mother wavelet
 
-The DWT outputs a series of coefficient values, which correspond to the energy of the signal at various frequencies. A signal of length L = 2^N will have N sets of coefficients. Each set of coefficients is calculated recursively from the previous set, so each has half as many elements as the set before (the first set has L/2 elements). Together, these can be used to reconstruct the signal, or, in our case, get a general understanding of its frequency components. Each layer of the transform (i.e., each set of the coefficients) represents a different scale of frequencies. The lowest layers of the transform (which have the most elements), represent the highest frequencies, and vice versa (see Figure 4). 
+The DWT outputs a series of coefficient values, which correspond to the energy of the signal at various frequencies. A signal of length L = 2^N will have N sets of coefficients. Each set of coefficients is calculated recursively from the previous set, so each has half as many elements as the set before (the first set has L/2 elements). Together, these can be used to reconstruct the signal, or, in our case, get a general understanding of its frequency components. Each layer of the transform (i.e., each set of the coefficients) represents a different scale of frequencies. The lowest layers of the transform (which have the most elements), represent the highest frequencies, and vice versa (see Figure 5). 
 
 ![dwt](resources/dwttree.png)
 
-Figure 4: The DWT's process. AX are the approximate coefficients, which are used to calculate the next layer of the transform. DX are the detailed coefficients, used in our algorithm.
+Figure 5: The DWT's process. AX are the approximate coefficients, which are used to calculate the next layer of the transform. DX are the detailed coefficients, used in our algorithm.
 
-Our initial idea was to perform the wavelet transform, and then set threshold values for each set of coefficients. If the transform produced a value above those coefficients, a beat would be detected. Our final implementation was slightly different, and incorporated averaging to set better thresholds (see Figure 5).
+Our initial idea was to perform the wavelet transform, and then set threshold values for each set of coefficients. If the transform produced a value above those coefficients, a beat would be detected. Our final implementation was slightly different, and incorporated averaging to set better thresholds (see Figure 6).
 
 ![Mac App Breakdown](resources/beat_block.png)
 
-Figure 5: A block diagram of our beat detection system
+Figure 6: A block diagram of our beat detection system
 
 #### Dance Mat User Input
 
-The floor tiles are built using Interlink Electronics' force sensitive resistors, where we have to resistors per tile (in parallel). Each tile functions as a simple voltage divider, where voltage spikes to approximately 3V on a press. We feed the outputs of these dividers to the PIC, where we have selected four pins to act as digital inputs. We send the pressed inputs and the desired arrow instructions to the Mac via UART. The PIC polls the dance mat for input approximately every 60 milliseconds. 
-
-TODO: INCLUDE SCHEMATIC OF FLOOR TILES
+The floor tiles are built using Interlink Electronics' force sensitive resistors, where we have to resistors per tile (in parallel). Each tile functions as a simple voltage divider, where voltage spikes to approximately 3V on a press. We feed the outputs of these dividers to the PIC, where we have selected four pins to act as digital inputs. We send the pressed inputs and the desired arrow instructions to the Mac via UART. The PIC polls the dance mat for input approximately every 60 milliseconds. See *Appendix C: Schematics* for more details.
 
 #### macOS Application (Display)
 
-Rather than building any sort of display, we chose to make an app for a Mac computer, so that it was easy to plug our device in and start playing. The Mac is connected by USB with a UART serial to USB cable (LINK HERE). The application is responsible for reading arrow sequences and currently pressed arrows from the PIC and displaying that accordingly. New sequences are added to the bottom of the screen, where they gradually move up to the top. At the top are faded outline arrows, which when they are pressed on the mat, they become fully opaque. The application is responsible for determining if the user properly presses the correct arrows at the time the current arrow sequence is passing by. The user recieves points depending on how well they time their presses.
+Rather than building any sort of display, we chose to make an app for a Mac computer, so that it was easy to plug our device in and start playing. The Mac is connected by USB with a UART serial to USB cable (LINK HERE). The application is responsible for reading arrow sequences and currently pressed arrows from the PIC and displaying that accordingly. New sequences are added to the bottom of the screen, where they gradually move up to the top. At the top are faded outline arrows, which when they are pressed on the mat, they become fully opaque. The application is responsible for determining if the user properly presses the correct arrows at the time the current arrow sequence is passing by (see Figure 7). The user recieves points depending on how well they time their presses. 
 
 ![Mac App Breakdown](resources/mac_app.png)
+
+Figure 7: Annotated Gameplay Screen
 
 ---
 
@@ -177,13 +179,17 @@ To change how long we wanted to buffer the audio, we just needed to change the v
 
 See *High Level Design: Beat Processing* for an overview of the mathematics of the Discrete Wavelet Transform (DWT). The bottom line is that the DWT provides gives both frequency-resolution and time-resolution when we analyze a signal, and can be done extremely quickly. We use this to detect peaks in certain frequency in a signal, and detect beats if those peaks are above thresholds.
 
-We first modeled our system in MATLAB, to ensure that this was actually possible on our scale. MATLAB has a wavelet library built in, so we used the existing DWT function to transform a variety of different signals. We first made sure that one could distinguish sounds of different frequencies using the coefficients. We were able to easily visually distinguish a kick drum and a hi-hat using the coefficients (see Figure 1, note that the scaling here is significantly off from our final scaling). The drum had higher coefficient values for the highest coefficient layers, and the hi-hat the lower layers, just as we expected.
+We first modeled our system in MATLAB, to ensure that this was actually possible on our scale. MATLAB has a wavelet library built in, so we used the existing DWT function to transform a variety of different signals. We first made sure that one could distinguish sounds of different frequencies using the coefficients. We were able to easily visually distinguish a kick drum and a hi-hat using the coefficients (see Figure 8, note that the scaling here is significantly off from our final scaling). The drum had higher coefficient values for the highest coefficient layers, and the hi-hat the lower layers, just as we expected.
 
 !["Kick HiHat Test"](resources/kickhatsplice.png)
 
-We conducted a variety of tests on various signals, including frequency sweeps and snippets of real songs (see Figure 2). We constructed a mapping from each layer of the transform to the frequency that provoked the greatest response, and also recorded threshold coefficient values. This culminated in a script that would take in a signal, and note the times when beats were detected (see song_test.m, in Appendix B). This process was effective in further developing our beat detection method. We added in downsampling of the original signal by 2 and a rectification of the transformed signal. This script functioned as an effective proof of concept, and served us well as we moved forward.
+Figure 8: DWT Test - Expanded coefficients of a signal with low (the kick drum) and high (the hi-hat) frequency components
+
+We conducted a variety of tests on various signals, including frequency sweeps and snippets of real songs (see Figure 9). We constructed a mapping from each layer of the transform to the frequency that provoked the greatest response, and also recorded threshold coefficient values. This culminated in a script that would take in a signal, and note the times when beats were detected (see song_test.m, in Appendix B). This process was effective in further developing our beat detection method. We added in downsampling of the original signal by 2 and a rectification of the transformed signal. This script functioned as an effective proof of concept, and served us well as we moved forward.
 
 !["Kick HiHat Test"](resources/trimmedwaveletform.png)
+
+Figure 9: DWT of a 15 second song snippet. Note the distinct peaks, which correspond to beats.
 
 We then began working to move the algorithm to C. We wanted to use or adapt an existing library for our purposes to maximize our efficiency. We initially used Rafat's wave library (see references), but found it too unwieldy. We then settled on the GNU Scientific Library, an open source scientific computing library. It had fairly good documentation online, and very easy to use functions. We did have to make several modifications, though. First, it is important to note that the GSL's notation is opposite from MATLAB's - i.e. higher coefficient levels have more entries and represent higher frequencies. This was fairly trivial though. We began by stripping the library of everything we did not need (2D wavelet transforms, wavelets besides the Haar wavelet, needless libraries, etc.). The most important priority was to modify GSL's DWT to no longer allocate any memory using malloc. We basically just allocate the memory beforehand by declaring variables of the necessary sizes to compute the DWT. The DWT is always computed on an array of length 2048, so arrays of constant sizes can be used. We also converted much of the calculations to integer math, becuase we did not need precision. We do have to cast to doubles for certain operations.
 
@@ -247,23 +253,27 @@ We used the PIC32 big development board, because it provided the best flexibilit
 
 ####Audio Circuitry
 
-We soldered our audio circuitry on a protoboard to make it easier to debug and to reduce noise. This circuitry was extremely rudimentary. Our audio input jack fed into a 500uF capacitor to cut out any DC component, then we fed it in between two 10KΩ resistors sitting between 3.3V and ground to offset it, so that the ADCs could read it with no clipping. The DAC output was fed directly to an audio jack and speakers. 
+We soldered our audio circuitry on a protoboard to make it easier to debug and to reduce noise (see Figure 10). This circuitry was extremely rudimentary. Our audio input jack fed into a 500uF capacitor to cut out any DC component, then we fed it in between two 10KΩ resistors sitting between 3.3V and ground to offset it, so that the ADCs could read it with no clipping. The DAC output was fed directly to an audio jack and speakers. See *Appendix C: Schematics* for more details.
 
 ![Mac App Breakdown](resources/audioboard.JPG)
+
+Figure 10: Annotated image of our final protoboard
 
 #### Floor Tiles
 
 The major consideration that affected our tile construction was a desire for resiliency. Since users would probably stomp on each of the tiles fairly hard, we wanted to make sure that our press detection system could withstand a lot of force. We also wanted a simple, easy solution to mock-up and build with minimal hardware knowledge. Initially we looked into using strain gauges, but they would require mounting to a base plate and the tile to be pushed. Traditional buttons did not seem like a robust enough option. Instead, we decided to use force sensitive resistors (FSRs). Initial testing revealed that the unpressed FSRs had resistance of approximately 6 MΩ, pressed was approximately 1KΩ. This huge discrepancy made it easy to probe it for a press. We contacted Interlink Electronics, and they were gracious enough to donate 10 FSR402s, making it possible for us to be under budget.
 
-Because the FSRs were small in area (<1 inch square), we added two to each tile to increase the robustness of detection. We used a plywood plank as our first version of the tile, but found it to be a bit too heavy. We then used these canvas boards that were significantly lighter. We hot-glued 1/4-in nuts to each of the FSRs and placed them near the center along one diagonal of the board. We then hot-glued washers and nuts to each of the four corners. As a result of this setup, the resistors typically had no force applied to them, because they hardly rested on the floor. However, once depressed, the board bended slightly and the FSRs were squeezed. We wired the two resistors in parallel, then in series with a 10KΩ resistor. Running 3.3 V across the setup and measuring the voltage at the intersection point gave us voltage levels of basically 0V/3.2V when unpressed/pressed, which meant we could just wire up each tile to a digital pin. We constructed four of these, wired them up to a protoboard hidden underneath the center tile, then fed a ribbon cable up to our main protoboard.
+Because the FSRs were small in area (<1 inch square), we added two to each tile to increase the robustness of detection. We used a plywood plank as our first version of the tile, but found it to be a bit too heavy (see Figure 11). We then used these canvas boards that were significantly lighter. We hot-glued 1/4-in nuts to each of the FSRs and placed them near the center along one diagonal of the board. We then hot-glued washers and nuts to each of the four corners. As a result of this setup, the resistors typically had no force applied to them, because they hardly rested on the floor. However, once depressed, the board bended slightly and the FSRs were squeezed. We wired the two resistors in parallel, then in series with a 10KΩ resistor. Running 3.3 V across the setup and measuring the voltage at the intersection point gave us voltage levels of basically 0V/3.2V when unpressed/pressed, which meant we could just wire up each tile to a digital pin. We constructed four of these, wired them up to a protoboard hidden underneath the center tile, then fed a ribbon cable up to our main protoboard (see Figure 12).
 
 !["First Tile"](resources/tile1.jpg)
 
-*Our First Tile*
+Figure 11: Our proof of concept tile
 
 ![Mac App Breakdown](resources/finalmat.JPG)
 
-Our pinouts for each PIC (small and large board) are listed below. In total we used 16 pins. This does not include pins used for Vdd and GND. 
+Figure 12: Final floor tile configuration
+
+Our pinouts for each PIC (small and large board) are listed below. In total we used 16 pins. This does not include pins used for Vdd and GND. See *Appendix C: Schematics* for more details.
 
 **Large Board**
 
@@ -287,8 +297,6 @@ Our pinouts for each PIC (small and large board) are listed below. In total we u
 | RPB13 (pin 24) | Left arrow input  |
 | RPB11 (pin 22) | UART U2RX         |
 | RPB10 (pin 21) | UART U2TX         |
-
-
 
 ---
 
@@ -358,11 +366,16 @@ The group approves the video for inclusion on the course Youtube channel.
 
 All of our code and the projects are on GitHub [here](https://github.com/drewsdunne/ece4760-lab5). The most important files are linked locally below. 
 
+PIC Code:
+
 - [lab5_wavelet.c](code/lab5_wavelet.c)
 - [lab5_buffer.c](code/lab5_buffer.c)
 - [wavelet.c](code/wavelet.c)
 - [dwt.c](code/dwt.c)
 - [haar.c](code/haar.c)
+
+macOS Code:
+
 - [GameController.h](code/GameController.h)
 - [GameController.m](code/GameController.m)
 - [GameData.h](code/GameData.h)
@@ -370,11 +383,15 @@ All of our code and the projects are on GitHub [here](https://github.com/drewsdu
 - [GameObject.h](code/GameObject.h)
 - [GameObject.m](code/GameObject.m)
 
+MATLAB Code:
+
+- ​
+
 ---
 
 ###Appendix C: Schematics
 
-TODO EVERYTHING
+![DDESchematic](/Users/michaelsolomentsev/Downloads/DDESchematic.png)
 
 ---
 

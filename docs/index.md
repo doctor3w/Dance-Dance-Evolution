@@ -40,7 +40,7 @@ TODO: INCLUDE SCHEMATIC OF FLOOR TILES
 
 Rather than building any sort of display, we chose to make an app for a Mac computer, so that it was easy to plug our device in and start playing. The Mac is connected by USB with a UART serial to USB cable (LINK HERE). The application is responsible for reading arrow sequences and currently pressed arrows from the PIC and displaying that accordingly. New sequences are added to the bottom of the screen, where they gradually move up to the top. At the top are faded outline arrows, which when they are pressed on the mat, they become fully opaque. The application is responsible for determining if the user properly presses the correct arrows at the time the current arrow sequence is passing by. The user recieves points depending on how well they time their presses.
 
-TODO: Include figure of mac display with breakdown
+![Mac App Breakdown](resources/mac_app.png)
 
 ---
 

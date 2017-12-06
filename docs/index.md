@@ -28,6 +28,8 @@ We use each of the PIC32s' onboard analog to digital converter (ADC) to sample t
 
 #### Beat Detection
 
+TODO: Block diagram
+
 TODO: EXPLAIN THE MATH
 
 #### Dance Mat User Input
@@ -119,11 +121,7 @@ if (should_send) {
 send_byte |= send_seq;
 ```
 
-#### Signal Processing and Beat Detection
-
-The idea to use wavelet transforms came from a Cornell class ECE3250 (Mathematics of Signal and System Analysis), where Professor Delchamps discussed the topic briefly. As an overview - wavelet transforms are a way to quickly assess the frequency of components of a signal with a degree of time resolution. The wavelet transforms were done using the GNU GSL library 
-
-#### Audio Buffering using External SRAM
+#### PIC32 1: Audio Buffering using External SRAM
 
 The audio buffering was done with our second PIC, as the CPU cycles required for SPI communication with the SRAM chip were too many to fit any other processing alongside. We used our professor Bruce's code for the SRAM chip for reading and writing to the SRAM and writing to the DAC. His code included some read/write methods as well as handling the SPI setup and mode changes. We had to add code to read from the ADC in a timer interrupt, and then write to a location in the SRAM, and finally read from a different location and write that value to the DAC. 
 
@@ -152,6 +150,54 @@ if (w_addr > MAX_ADDR) {
 ```
 
 To change how long we wanted to buffer the audio, we just needed to change the values of MAX_ADDR and MIN_ADDR. The closer together they were the smaller the range of the SRAM we wrote to, hence reading a previously written value sooner. This was important because using the entire SRAM gave us a buffer of about 3.3 seconds and we only wanted about 2.5 seconds. Thus after some testing we were able to find the correct buffer size to use. 
+
+#### PIC32 2: Signal Processing and Beat Detection
+
+The idea to use wavelet transforms came from a Cornell class ECE3250 (Mathematics of Signal and System Analysis), where Professor Delchamps discussed the topic briefly. As an overview - wavelet transforms are a way to quickly assess the frequency of components of a signal with a degree of time resolution. 
+
+The DWT outputs a series of coefficient values, which correspond to the energy of the signal at various frequencies. A signal of length L = 2^N will have N sets of coefficients. Each set of coefficients is calculated recursively from the previous set, so each has half as many elements as the set before (the first set has L/2 elements). Together, these can be used to reconstruct the signal, or, in our case, get a general understanding of its frequency components. Each layer of the transform (i.e., each set of the coefficients) represents a different scale of frequencies. The lowest layers of the transform (which have the most elements), represent the highest frequencies, and vice versa. Our initial idea was to perform the wavelet transform, and then set threshold values for each set of coefficients. If the transform produced a value above those coefficients, a beat would be detected.
+
+We first modeled our system in MATLAB, to ensure that this was actually possible on our scale. MATLAB has a wavelet library built in, so we used the existing DWT function to transform a variety of different signals. We first made sure that one could distinguish sounds of different frequencies using the coefficients. We were able to easily visually distinguish a kick drum and a hi-hat using the coefficients (see Figure 1, note that the scaling here is significantly off from our final scaling). The drum had higher coefficient values for the highest coefficient layers, and the hi-hat the lower layers, just as we expected.
+
+!["Kick HiHat Test"](resources/kickhatsplice.png)
+
+We conducted a variety of tests on various signals, including frequency sweeps and snippets of real songs (see Figure 2). We constructed a mapping from each layer of the transform to the frequency that provoked the greatest response, and also recorded threshold coefficient values. This culminated in a script that would take in a signal, and note the times when beats were detected (see song_test.m, in Appendix B). This process was effective in further developing our beat detection method. We added in downsampling of the original signal by 2 and a rectification of the transformed signal. This script functioned as an effective proof of concept, and served us well as we moved forward.
+
+insert figure 2
+
+We then began working to move the algorithm to C. We wanted to use or adapt an existing library for our purposes to maximize our efficiency. We initially used Rafat's wave library (see references), but found it too unwieldy. We then settled on the GNU Scientific Library, an open source scientific computing library. It had fairly good documentation online, and very easy to use functions. We did have to make several modifications, though. First, it is important to note that the GSL's notation is opposite from MATLAB's - i.e. higher coefficient levels have more entries and represent higher frequencies. This was fairly trivial though. We began by stripping the library of everything we did not need (2D wavelet transforms, wavelets besides the Haar wavelet, needless libraries, etc.). The most important priority was to modify GSL's DWT to no longer allocate any memory using malloc. BIT MORE HERE
+
+```c
+
+```
+
+Once the DWT algorithm was functioning, we began writing the actual beat detection code. We decided to perform the DWT approximately 10 times a second, so that we could get pretty good resolution for beat detection. Sampling at 40kHz, this worked out to about 4096 samples for each transform (the function requires an input array of length 2^N for some N). We downsample by 2, giving us 2048 samples and 11 layers of coefficients. GSL's DWT returns the coefficients in one large array, so our absmax function takes in array indices and returns the maximum absolute coefficient value in that segment. This allows to find the peak of each coefficient layer.
+
+Note that we do not use all the different coefficient values, because some simply do not give us good beat detection and have significant noise.
+
+```c
+    cd1_val  = absmax(data,   2,   4);
+    cd2_val  = absmax(data,   4,   8);
+	...
+    cd9_val  = absmax(data, 512, 1024);
+    
+    cd1_beat = cd1_val - cd_beats[0] >= CD1_THRESHOLD;
+    ...
+    cd9_beat = cd9_val - cd_beats[8] >= CD9_THRESHOLD;
+    
+    cd_beats[0] = RC_FILTER(cd1_val, cd_beats[0]);
+    ...
+    cd_beats[8] = RC_FILTER(cd9_val, cd_beats[8]);
+    
+    // Arrow generation
+    arrows_to_send = 0;
+    arrows_to_send |= (!(cd1_beat || cd4_beat)) << 0;
+    arrows_to_send |= (!(cd7_beat || cd8_beat || cd9_beat)) << 1;
+    arrows_to_send |= (!(cd5_beat || cd6_beat)) << 2;
+    arrows_to_send |= (!(cd2_beat || cd3_beat)) << 3;
+    
+    if (arrows_to_send != 0b00001111) should_send = 1;
+```
 
 ---
 
@@ -208,9 +254,9 @@ Our pinouts for each PIC (small and large board) are listed below. In total we u
 
 #### General Usability
 
-The final product was a success. The audio buffering worked extremely well, user input was clearly visible on the screen, beat detection was fairly good (see below section), and the Mac app accurately kept track of the score. Our floor tiles were somewhat difficult to use, because they felt very fragile to users who stepped on them. In order to prevent anything from breaking, much of the final testing was then done by stepping on the tiles while standing adjacent to the system (essentially being as delicate as possible). The game was definitely functional, though. Both team members found it exceptionally difficult to play the game because it was simply very hard. On the whole though, it was a successful, usable system.
+The final product was a success. The audio buffering worked extremely well, user input was clearly visible on the screen, beat detection was fairly good (see below section), and the Mac app accurately kept track of the score. Our floor tiles were somewhat difficult to use, because they felt very fragile to users who stepped on them. In order to prevent anything from breaking, much of the final testing was then done by stepping on the tiles while standing adjacent to the system (essentially being as delicate as possible). The game was definitely functional, though. Both team members found it exceptionally difficult to play the game because it was simply very hard. On the whole though, it was a successful, usable system. Here's a video of us playing the game (poorly).
 
-*INSERT VIDEO*
+https://www.youtube.com/watch?v=pRdD69pSOHk
 
 ####Beat Detection
 
@@ -218,13 +264,15 @@ The beat detection algorithm was remarkably successful. We tested using a variet
 
 Our algorithm is extremely effective at detecting beats and generating interesting arrow patterns when the music playing has distinctive low frequency components that manifest themselves in short beats. Playing classic rock and other music with loud, repetitive drums (AC/DC's Highway to Hell; Darius Rucker's Wagon Wheel) results in clear beat detection as soon as the drums kick in. Other sounds (guitar modulation, vocals, etc), result in variations in the arrow sequences. Our system also performs very well with electronic music (Mr. FInger's Mystery of Love; LCD Soundsystem's Dance Yourself Clean). These songs also have distinctive drums or quick base notes that make up the beat of the song. Since the base notes here are electronic, and can actually have a melody (as opposed to analog drums which are fairly constant in tone from hit to hit), they can result in really interesting, fun to play patterns.
 
-**INSERT VIDEOs HERE**
+https://www.youtube.com/watch?v=pbBUz9WgCM0
+
+<https://youtu.be/TxRhZYfxWvQ>
 
 As we expected at the onset of the project, certain genres of music did not work well for our system. We had two different types of failure cases. In the first case, no beats would be detected. This occurs when a piece of music is slower and has few cases of 'spikes in the signal,' so to speak. The Discrete Wavelet Transform essentially detects high energy transitions that look like the mother wavelet (see *High Level Design: Beat Detection*), and these are much less common in songs without modern bass. Classical music obviously fails to have beats detected. We also had poor results with jazz (Louis Armstrong, Dave Brubeck's Take Five). 
 
 The other failure case we encountered was when too many beats were detected. This occurred primarily when base notes were too long, or the music simply had 'too much going on.' We consistently failed to generate anything remotely usable when playing hip-hop music, because long 808 bass notes caused our beat detection system to freak out, generating far too many notes. Quick hi-hats also resulted in many beat detections. This oversaturation made the game unplayable.
 
-**Insert other video here**
+https://www.youtube.com/watch?v=3SJikKN0DuU
 
 ####Safety
 

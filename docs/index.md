@@ -1,4 +1,4 @@
-# *Dance Dance Evolution*
+# Dance Dance Evolution
 
 ### Real Time Beat Detection, Audio Buffering, and User Input Using the PIC32
 
@@ -163,15 +163,24 @@ We first modeled our system in MATLAB, to ensure that this was actually possible
 
 We conducted a variety of tests on various signals, including frequency sweeps and snippets of real songs (see Figure 2). We constructed a mapping from each layer of the transform to the frequency that provoked the greatest response, and also recorded threshold coefficient values. This culminated in a script that would take in a signal, and note the times when beats were detected (see song_test.m, in Appendix B). This process was effective in further developing our beat detection method. We added in downsampling of the original signal by 2 and a rectification of the transformed signal. This script functioned as an effective proof of concept, and served us well as we moved forward.
 
-insert figure 2
+!["Kick HiHat Test"](resources/trimmedwaveletform.png)
 
-We then began working to move the algorithm to C. We wanted to use or adapt an existing library for our purposes to maximize our efficiency. We initially used Rafat's wave library (see references), but found it too unwieldy. We then settled on the GNU Scientific Library, an open source scientific computing library. It had fairly good documentation online, and very easy to use functions. We did have to make several modifications, though. First, it is important to note that the GSL's notation is opposite from MATLAB's - i.e. higher coefficient levels have more entries and represent higher frequencies. This was fairly trivial though. We began by stripping the library of everything we did not need (2D wavelet transforms, wavelets besides the Haar wavelet, needless libraries, etc.). The most important priority was to modify GSL's DWT to no longer allocate any memory using malloc. BIT MORE HERE
+We then began working to move the algorithm to C. We wanted to use or adapt an existing library for our purposes to maximize our efficiency. We initially used Rafat's wave library (see references), but found it too unwieldy. We then settled on the GNU Scientific Library, an open source scientific computing library. It had fairly good documentation online, and very easy to use functions. We did have to make several modifications, though. First, it is important to note that the GSL's notation is opposite from MATLAB's - i.e. higher coefficient levels have more entries and represent higher frequencies. This was fairly trivial though. We began by stripping the library of everything we did not need (2D wavelet transforms, wavelets besides the Haar wavelet, needless libraries, etc.). The most important priority was to modify GSL's DWT to no longer allocate any memory using malloc. We basically just allocate the memory beforehand by declaring variables of the necessary sizes to compute the DWT. The DWT is always computed on an array of length 2048, so arrays of constant sizes can be used. We also converted much of the calculations to integer math, becuase we did not need precision. We do have to cast to doubles for certain operations.
 
 ```c
+int data[SAMPLE_SIZE];
+int scratch[SAMPLE_SIZE];
 
+static gsl_wavelet wave;
+gsl_wavelet *w = &wave;
+
+static gsl_wavelet_workspace workspace = { scratch, 2048 };
+gsl_wavelet_workspace *work = &workspace;
 ```
 
-Once the DWT algorithm was functioning, we began writing the actual beat detection code. We decided to perform the DWT approximately 10 times a second, so that we could get pretty good resolution for beat detection. Sampling at 40kHz, this worked out to about 4096 samples for each transform (the function requires an input array of length 2^N for some N). We downsample by 2, giving us 2048 samples and 11 layers of coefficients. GSL's DWT returns the coefficients in one large array, so our absmax function takes in array indices and returns the maximum absolute coefficient value in that segment. This allows to find the peak of each coefficient layer.
+Once the DWT algorithm was functioning, we began writing the actual beat detection code. We decided to perform the DWT approximately 10 times a second, so that we could get pretty good resolution for beat detection. Sampling at 40kHz, this worked out to about 4096 samples for each transform (the function requires an input array of length 2^N for some N). We downsample by 2, giving us 2048 samples and 11 layers of coefficients. When a buffer of samples fills, we compute the DWT. GSL's DWT returns the coefficients in one large array, so our absmax function takes in array indices and returns the maximum absolute coefficient value in that segment. This allows to find the peak of each coefficient layer.
+
+We then take those peaks and compare them to our thresholds. We have two sets of thresholds for each coefficient layer, one active and one passive. If the absmax value is greater than active plus passive thresholds, a beat is detected. The passive thresholds were set due to testing trial and error. The active ones are essentially a running average of the past four or so absmax values from that coefficient layer, implemented through an approximation of an RC filter (`((old_val - new_val) >> 1) + ((old_val - new_val) >> 2) + new_val`). We then send the detected beats to the computer.
 
 Note that we do not use all the different coefficient values, because some simply do not give us good beat detection and have significant noise.
 
@@ -197,6 +206,17 @@ Note that we do not use all the different coefficient values, because some simpl
     arrows_to_send |= (!(cd2_beat || cd3_beat)) << 3;
     
     if (arrows_to_send != 0b00001111) should_send = 1;
+```
+
+### PIC32 2: User Input
+
+Taking input from the floor mats was extremely simple. Each tile functioned as an active high button, and each was polled approximately 15 times per second (every 60 milliseconds). Four pins are read in succession, and the output is sent as the upper 4 bits of the byte sent to the computer via the UART connection. 
+
+```c
+        send_byte |= (mPORTBReadBits( BIT_7 ) == 0) << 4;
+        send_byte |= (mPORTBReadBits( BIT_8 ) == 0) << 5;
+        send_byte |= (mPORTBReadBits( BIT_9 ) == 0) << 6;
+        send_byte |= (mPORTBReadBits( BIT_13 ) == 0) << 7;
 ```
 
 ---

@@ -48,19 +48,110 @@ TODO: Include figure of mac display with breakdown
 
 #### macOS Application
 
-As mentioned before, our Mac app reads from the PIC through UART. In order to achieve this we first had to install a driver to the specific serial cable bought for the project. We used one from Prolific, the link to the driver is [here](http://www.prolific.com.tw/US/ShowProduct.aspx?p_id=229&pcid=41). Once we could communicate to the PIC over UART, we needed the Mac application to be able to communicate through UART as well, and for that we used a framework called [ORSSerialPort](https://github.com/armadsen/ORSSerialPort). This framework allowed us to use a common pattern in Cocoa development called the delegate pattern. We used ORSSerialPort to create a serial port object, which we set our app's view controller as the delegate for, and then an interface function implemented as part of the delegate pattern would be called every time there was new data to read. This made reading from the PIC very simple, as each time that method was called we knew more information had been sent from the PIC. 
+As aforementioned, our Mac app reads from the PIC through UART. In order to achieve this we first had to install a driver to the specific serial cable bought for the project. We used one from Prolific, the link to the driver is [here](http://www.prolific.com.tw/US/ShowProduct.aspx?p_id=229&pcid=41). Once we could communicate to the PIC over UART, we need the mac application to be able to communicate through UART as well, and for that we used a framework called [ORSSerialPort](https://github.com/armadsen/ORSSerialPort). This framework allowed us to use a common pattern in Cocoa development called the delegate pattern. We used ORSSerialPort to create a ORSSerialPort object, which we set our app's view controller as the delegate for, and then an interface function implemented as part of the delegate pattern would be called every time there was new data to read. This made reading from the PIC very simple, as each time that method was called we knew more information had been sent from the PIC. The delegate method called by the serial port object in GameController is shown below.
 
-The application also displayed the arrow sequences and user input, and this was done by adapting the simple Core Animation game library developed by Matt Gallagher. This library offers simple game objects, centralized game data, and CoreAnimation layers for the game objects all synchronized with NSTimers and Key-Value Observation. The game data starts a timer upon a new game which calls update functions for each game object currently in the data. Each time they object updates its properties, they value change notifies the game objects attached CoreAnimation layer object to update on the screen. The library was adapted for our arrow objects and the game data now sets a new game up with outline arrows and a score of zero. We also modified how objects were removed from the screen by using CATransactions rather than abruptly removing it, which was causing an odd lag as the arrows moved upwards. 
+```objective-c
+// ORSSerialPort delegate method implementation
+// Called every time new data is received from the serial communication. 
+- (void)serialPort:(ORSSerialPort *)serialPort didReceiveData:(NSData *)data
+{
+  if (data.length > 0) {
+    unsigned char byte = ((char *)[data bytes])[0];
+    if (byte != 0) {
+      // Actual game data received. invert bits.
+      unsigned char in_arrows = ((~byte) >> 4) & 0xf; // User selected arrows. 
+      unsigned char new_arrows = (~byte) & 0x0f; // Newly processed arrow sequence. 
+      [[GameData sharedGameData] highlightOutlineArrows:in_arrows];
+      
+      // Prevents the counter from incrementing when there aren't really
+      // new arrows to add. 
+      if (new_arrows != 0) 
+        [[GameData sharedGameData] addArrowSeq:new_arrows];
+    }
+  }
+}
+```
 
-To combine the game view and the reading of the serial input, we had a view controller. Our app used another common Cocoa modeling called MVC, or Model-View-Controller. This idea keeps the model, or data, from interacting directly with the view. The controller handles the interaction between the two. Thus our controller would be the one reading from the serial port, and each time a byte had been sent from the PIC, it would parse those bits for the new arrow sequence as well as the currently pressed arrows. 
+The application also displays the arrow sequences and user input, and this was done by adapting simple CoreAnimation game library developed by Matt Gallagher. This library offers simple game objects with the GameObject class, centralized game data with GameData class, and CoreAnimation layers for the game objects (GameObjectLayer class) all synchronized with NSTimers and Key-Value Observation. The game data starts a timer upon a new game which calls update functions for each game object currently in the data. Each time they object updates its properties, they value change notifies the game objects attached CoreAnimation layer object to update on the screen. The library was adapted for our arrow objects and the game data now sets a new game up with outline arrows and a score of zero. We also modified how objects were removed from the screen by using CATransactions rather than abruptly removing it, which was causing an odd lag as the arrows moved upwards. 
+
+To combine the game view and the reading of the serial input, we had a view controller. Our app used another common Cocoa modeling called MVC, or Model-View-Controller. This idea keeps the model, or data, from interacting directly with the view. The controller handles the interaction between the two. Thus our controller would be the one reading from the serial port, and each time a byte had been sent from the PIC, it would parse those bits for the new arrow sequence as well as the currently pressed arrows. The controller would then instruct the game data to add new arrow objects to the screen and highlight the user arrows as necessary. One hiccup we came across was the serial port library on the Mac would trigger the delegate method with a 0 byte every other trigger. We could not figure out why this happend, so we had to develop a workaround. The solution was to send from the PIC all the data with the bits inverted, because it was rare that all 4 arrows would be pressed and that we'd be adding all four arrows in one sequence which would be the byte `0b11111111`. Hence flipping all the bits allowed us to ignore all 0 bytes, but everything essentially became active low. To handle the adding of the arrow objects and highlighting we defined the following functions inside the GameData class. 
+
+```objective-c
+// Highlights the specified outline arrows with the bottom four 
+// bits of [highlights] being the Left-Down-Up-Right arrows.
+// Also adds to the score based on how close the current sequence is.
+// Removes current sequence from screen if scored. 
+- (void)highlightOutlineArrows:(unsigned char)highlights;
+
+// Called in new game, adds the half opacity outline arrows
+// to the top of the screen to show user input.
+- (void)addOutlineArrows;
+
+// Adds a new arrow sequence to the bottom of the screen with 
+// the bottom four bits of [highlights] being the Left-Down-Up-Right 
+// arrows. Also assigns them an ID number from the running counter in 
+// GameData. 
+- (void)addArrowSeq:(unsigned char)sequence;
+
+// A helper function for aligning the y-value of the arrows with the others
+// in the same sequence (represented by the key).
+- (void)alignHorizontalArrows:(unsigned char)sequence ForKey:(NSString *)key;
+```
+
+Inside of GameData, we have two counters running to keep track of the next sequence number to add and the current sequence number to hit. This allows us to grab the arrow objects by number and add new ones. We also have a score variable, which whenever updated we post a notification for the GameController to update the score label on screen.
+
+On the PIC we have a simple thread running every 60 milliseconds which reads in the values of 4 input pins, checks if it is high, shifts it over a number of bits, and then ORs it into the byte to send. The code snippet below shows how we achieved this, where `arrows_to_send` is a pre-inverted arrow sequence generated from the wavelet transforms. 
+
+```c
+send_byte = 0; // byte to send
+send_byte |= (mPORTBReadBits( BIT_7 ) == 0) << 4;
+send_byte |= (mPORTBReadBits( BIT_8 ) == 0) << 5;
+send_byte |= (mPORTBReadBits( BIT_9 ) == 0) << 6;
+send_byte |= (mPORTBReadBits( BIT_13 ) == 0) << 7;
+// Left-Down-Up-Right-0-0-0-0
+
+// send the prompt via DMA to serial
+send_seq = 0x0f; // base send_seq
+if (should_send) {
+  send_seq = arrows_to_send; 
+  should_send = 0;
+}
+send_byte |= send_seq;
+```
 
 #### Signal Processing and Beat Detection
 
-The idea to use wavelet transforms came from ECE3250 (Mathematics of Signal and System Analysis), where Professor Delchamps discussed the topic briefly. As an overview - wavelet transforms are a way to quickly assess the frequency of components of a signal with a degree of time resolution. The wavelet  
+The idea to use wavelet transforms came from a Cornell class ECE3250 (Mathematics of Signal and System Analysis), where Professor Delchamps discussed the topic briefly. As an overview - wavelet transforms are a way to quickly assess the frequency of components of a signal with a degree of time resolution. The wavelet transforms were done using the GNU GSL library 
 
 #### Audio Buffering using External SRAM
 
-drew can you get this?
+The audio buffering was done with our second PIC, as the CPU cycles required for SPI communication with the SRAM chip were too many to fit any other processing alongside. We used our professor Bruce's code for the SRAM chip for reading and writing to the SRAM and writing to the DAC. His code included some read/write methods as well as handling the SPI setup and mode changes. We had to add code to read from the ADC in a timer interrupt, and then write to a location in the SRAM, and finally read from a different location and write that value to the DAC. 
+
+```c
+// Interrupt code (fires 40kHz)
+adc_read = ReadADC10(0); // Reads ADC value
+AcquireADC10();
+
+ram_write_byte(w_addr, adc_read>>2); // Write the 8-bit ADC value
+// Only read if there's actually data ready
+if (r_valid) {
+  ram_read = ram_read_byte(r_addr);
+  dac_write_byte(ram_read<<4); // Writes to DAC channel A
+}
+
+w_addr += 1;
+r_addr += 1;
+if (w_addr == MAX_ADDR - 1) {
+  // set r_addr to MIN_ADDR
+  r_addr = MIN_ADDR;
+  r_valid = 1;
+}
+if (w_addr > MAX_ADDR) {
+  w_addr = MIN_ADDR;
+}
+```
+
+To change how long we wanted to buffer the audio, we just needed to change the values of MAX_ADDR and MIN_ADDR. The closer together they were the smaller the range of the SRAM we wrote to, hence reading a previously written value sooner. This was important because using the entire SRAM gave us a buffer of about 3.3 seconds and we only wanted about 2.5 seconds. Thus after some testing we were able to find the correct buffer size to use. 
 
 ---
 
@@ -80,7 +171,7 @@ The major consideration that affected our tile construction was a desire for res
 
 Because the FSRs were small in area (<1 inch square), we added two to each tile to increase the robustness of detection. We used a plywood plank as our first version of the tile, but found it to be a bit too heavy. We then used these canvas boards that were significantly lighter. We hot-glued 1/4-in nuts to each of the FSRs and placed them near the center along one diagonal of the board. We then hot-glued washers and nuts to each of the four corners. As a result of this setup, the resistors typically had no force applied to them, because they hardly rested on the floor. However, once depressed, the board bended slightly and the FSRs were squeezed. We wired the two resistors in parallel, then in series with a 10KΩ resistor. Running 3.3 V across the setup and measuring the voltage at the intersection point gave us voltage levels of basically 0V/3.2V when unpressed/pressed, which meant we could just wire up each tile to a digital pin. We constructed four of these, wired them up to a protoboard hidden underneath the center tile, then fed a ribbon cable up to our main protoboard.
 
-![alt text](resources/tile1.JPG "First Tile")
+!["First Tile"](resources/tile1.JPG)
 
 *Our First Tile*
 

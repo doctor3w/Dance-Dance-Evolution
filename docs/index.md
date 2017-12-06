@@ -100,15 +100,58 @@ To combine the game view and the reading of the serial input, we had a view cont
 
 Inside of GameData, we have two counters running to keep track of the next sequence number to add and the current sequence number to hit. This allows us to grab the arrow objects by number and add new ones. We also have a score variable, which whenever updated we post a notification for the GameController to update the score label on screen.
 
-On the PIC we have a simple thread running every 60 milliseconds which reads in the values of 4 input pins, checks if it is high, shifts it over a number of bits, and then  
+On the PIC we have a simple thread running every 60 milliseconds which reads in the values of 4 input pins, checks if it is high, shifts it over a number of bits, and then ORs it into the byte to send. The code snippet below shows how we achieved this, where `arrows_to_send` is a pre-inverted arrow sequence generated from the wavelet transforms. 
+
+```c
+send_byte = 0; // byte to send
+send_byte |= (mPORTBReadBits( BIT_7 ) == 0) << 4;
+send_byte |= (mPORTBReadBits( BIT_8 ) == 0) << 5;
+send_byte |= (mPORTBReadBits( BIT_9 ) == 0) << 6;
+send_byte |= (mPORTBReadBits( BIT_13 ) == 0) << 7;
+// Left-Down-Up-Right-0-0-0-0
+
+// send the prompt via DMA to serial
+send_seq = 0x0f; // base send_seq
+if (should_send) {
+  send_seq = arrows_to_send; 
+  should_send = 0;
+}
+send_byte |= send_seq;
+```
 
 #### Signal Processing and Beat Detection
 
-The idea to use wavelet transforms came from a Cornell class ECE3250 (Mathematics of Signal and System Analysis), where Professor Delchamps discussed the topic briefly. As an overview - wavelet transforms are a way to quickly assess the frequency of components of a signal with a degree of time resolution. The wavelet transforms were done 
+The idea to use wavelet transforms came from a Cornell class ECE3250 (Mathematics of Signal and System Analysis), where Professor Delchamps discussed the topic briefly. As an overview - wavelet transforms are a way to quickly assess the frequency of components of a signal with a degree of time resolution. The wavelet transforms were done using the GNU GSL library 
 
 #### Audio Buffering using External SRAM
 
-drew can you get this?
+The audio buffering was done with our second PIC, as the CPU cycles required for SPI communication with the SRAM chip were too many to fit any other processing alongside. We used our professor Bruce's code for the SRAM chip for reading and writing to the SRAM and writing to the DAC. His code included some read/write methods as well as handling the SPI setup and mode changes. We had to add code to read from the ADC in a timer interrupt, and then write to a location in the SRAM, and finally read from a different location and write that value to the DAC. 
+
+```c
+// Interrupt code (fires 40kHz)
+adc_read = ReadADC10(0); // Reads ADC value
+AcquireADC10();
+
+ram_write_byte(w_addr, adc_read>>2); // Write the 8-bit ADC value
+// Only read if there's actually data ready
+if (r_valid) {
+  ram_read = ram_read_byte(r_addr);
+  dac_write_byte(ram_read<<4); // Writes to DAC channel A
+}
+
+w_addr += 1;
+r_addr += 1;
+if (w_addr == MAX_ADDR - 1) {
+  // set r_addr to MIN_ADDR
+  r_addr = MIN_ADDR;
+  r_valid = 1;
+}
+if (w_addr > MAX_ADDR) {
+  w_addr = MIN_ADDR;
+}
+```
+
+To change how long we wanted to buffer the audio, we just needed to change the values of MAX_ADDR and MIN_ADDR. The closer together they were the smaller the range of the SRAM we wrote to, hence reading a previously written value sooner. This was important because using the entire SRAM gave us a buffer of about 3.3 seconds and we only wanted about 2.5 seconds. Thus after some testing we were able to find the correct buffer size to use. 
 
 ---
 

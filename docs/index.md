@@ -30,6 +30,12 @@ We use each of the PIC32s' onboard analog to digital converter (ADC) to sample t
 
 The idea to use wavelet transforms came from a Cornell class ECE3250 (Mathematics of Signal and System Analysis), where Professor Delchamps discussed the topic briefly. As an overview - wavelet transforms are a way to quickly assess the frequency of components of a signal with a degree of time resolution. They are attractive to an embedded systems application like this one because they require relatively little calculations to compute. 
 
+![dwt](resources/dwt.jpg)
+
+Figure _:The Discrete Wavelet Transform (DWT) 
+
+The discrete wavelet transform (DWT), is performed on a discrete time signal using the mother wavelet, Ψ. There are many different kinds of mother wavelets, but the easiest to compute is the Haar wavelet (see Figure ). When the Haar wavelet is used, the math to compute each layer of the DWT is fairly simple, requiring only a few multiplies and adds. Moreover, it is recursive and extremely efficient. 
+
 The DWT outputs a series of coefficient values, which correspond to the energy of the signal at various frequencies. A signal of length L = 2^N will have N sets of coefficients. Each set of coefficients is calculated recursively from the previous set, so each has half as many elements as the set before (the first set has L/2 elements). Together, these can be used to reconstruct the signal, or, in our case, get a general understanding of its frequency components. Each layer of the transform (i.e., each set of the coefficients) represents a different scale of frequencies. The lowest layers of the transform (which have the most elements), represent the highest frequencies, and vice versa. Our initial idea was to perform the wavelet transform, and then set threshold values for each set of coefficients. If the transform produced a value above those coefficients, a beat would be detected. Our final implementation was slightly different, and incorporated averaging to set better thresholds.
 
 TODO: Block diagram

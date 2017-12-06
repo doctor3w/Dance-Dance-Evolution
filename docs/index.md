@@ -28,9 +28,11 @@ We use each of the PIC32s' onboard analog to digital converter (ADC) to sample t
 
 #### Beat Detection
 
-TODO: Block diagram
+The idea to use wavelet transforms came from a Cornell class ECE3250 (Mathematics of Signal and System Analysis), where Professor Delchamps discussed the topic briefly. As an overview - wavelet transforms are a way to quickly assess the frequency of components of a signal with a degree of time resolution. They are attractive to an embedded systems application like this one because they require relatively little calculations to compute. 
 
-TODO: EXPLAIN THE MATH
+The DWT outputs a series of coefficient values, which correspond to the energy of the signal at various frequencies. A signal of length L = 2^N will have N sets of coefficients. Each set of coefficients is calculated recursively from the previous set, so each has half as many elements as the set before (the first set has L/2 elements). Together, these can be used to reconstruct the signal, or, in our case, get a general understanding of its frequency components. Each layer of the transform (i.e., each set of the coefficients) represents a different scale of frequencies. The lowest layers of the transform (which have the most elements), represent the highest frequencies, and vice versa. Our initial idea was to perform the wavelet transform, and then set threshold values for each set of coefficients. If the transform produced a value above those coefficients, a beat would be detected. Our final implementation was slightly different, and incorporated averaging to set better thresholds.
+
+TODO: Block diagram
 
 #### Dance Mat User Input
 
@@ -153,9 +155,7 @@ To change how long we wanted to buffer the audio, we just needed to change the v
 
 #### PIC32 2: Signal Processing and Beat Detection
 
-The idea to use wavelet transforms came from a Cornell class ECE3250 (Mathematics of Signal and System Analysis), where Professor Delchamps discussed the topic briefly. As an overview - wavelet transforms are a way to quickly assess the frequency of components of a signal with a degree of time resolution. 
-
-The DWT outputs a series of coefficient values, which correspond to the energy of the signal at various frequencies. A signal of length L = 2^N will have N sets of coefficients. Each set of coefficients is calculated recursively from the previous set, so each has half as many elements as the set before (the first set has L/2 elements). Together, these can be used to reconstruct the signal, or, in our case, get a general understanding of its frequency components. Each layer of the transform (i.e., each set of the coefficients) represents a different scale of frequencies. The lowest layers of the transform (which have the most elements), represent the highest frequencies, and vice versa. Our initial idea was to perform the wavelet transform, and then set threshold values for each set of coefficients. If the transform produced a value above those coefficients, a beat would be detected.
+See *High Level Design: Beat Processing* for an overview of the mathematics of the Discrete Wavelet Transform (DWT). The bottom line is that the DWT provides gives both frequency-resolution and time-resolution when we analyze a signal, and can be done extremely quickly. We use this to detect peaks in certain frequency in a signal, and detect beats if those peaks are above thresholds.
 
 We first modeled our system in MATLAB, to ensure that this was actually possible on our scale. MATLAB has a wavelet library built in, so we used the existing DWT function to transform a variety of different signals. We first made sure that one could distinguish sounds of different frequencies using the coefficients. We were able to easily visually distinguish a kick drum and a hi-hat using the coefficients (see Figure 1, note that the scaling here is significantly off from our final scaling). The drum had higher coefficient values for the highest coefficient layers, and the hi-hat the lower layers, just as we expected.
 

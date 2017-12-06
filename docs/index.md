@@ -266,7 +266,29 @@ The group approves the video for inclusion on the course Youtube channel.
 
 ### Appendix B: Commented Code
 
-should put links to other pages/github here
+All of our code and the projects are on GitHub [here](https://github.com/drewsdunne/ece4760-lab5). The most important files are linked locally below. 
+
+- [lab5_wavelet.c]: code/lab5_wavelet.c	"lab5_wavelet.c"
+
+- [lab5_buffer.c]: code/lab5_buffer.c	"lab5_buffer.c"
+
+- [wavelet.c]: code/wavelet.c	"wavelet.c"
+
+- [dwt.c]: code/dwt.c	"dwt.c"
+
+- [haar.c]: code/haar.c	"haar.c"
+
+- [GameController.h]: code/GameController.h	"GameController.h"
+
+- [GameController.m]: code/GameController.m	"GameController.m"
+
+- [GameData.h]: code/GameData.h	"GameData.h"
+
+- [GameData.m]: code/GameData.m	"GameData.m"
+
+- [GameObject.h]: code/GameObject.h	"GameObject.h"
+
+- [GameObject.m]: code/GameObject.m	"GameObject.m"
 
 ---
 
@@ -339,4 +361,9 @@ Michael focused on:
 
 [IEEE Code of Ethics](https://www.ieee.org/about/corporate/governance/p7-8.html)
 
-**THINGS TO ADD: LINK TO OUR GITHUB**
+[GitHub Repo](https://github.com/drewsdunne/ece4760-lab5)
+
+[ORSSerialPort](https://github.com/armadsen/ORSSerialPort)
+
+[USB Serial Driver for Mac](http://www.prolific.com.tw/US/ShowProduct.aspx?p_id=229&pcid=41)
+

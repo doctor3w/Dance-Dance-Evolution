@@ -24,7 +24,9 @@ Figure 1: Our final system (missing power supplies)
 
 The system requires two kinds of user input: An audio source and button pushes from the floor tiles. It then must process those inputs, delay those inputs until processing is done, and display scoring and upcoming button press instructions on a screen. We use two PIC32s to do the aforementioned input processing (one detects beats and reads the dance mat input, the other buffers audio), and we use a macOS application to display the beats and handle scoring. 
 
-**INSERT FIGURE 2 - block diagram here**
+![Block Diagram](resources/block_diagram.png)
+
+Figure 2: System Block Diagram
 
 #### Audio Input
 

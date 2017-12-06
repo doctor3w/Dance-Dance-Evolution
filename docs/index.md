@@ -42,7 +42,7 @@ TODO: INCLUDE SCHEMATIC OF FLOOR TILES
 
 Rather than building any sort of display, we chose to make an app for a Mac computer, so that it was easy to plug our device in and start playing. The Mac is connected by USB with a UART serial to USB cable (LINK HERE). The application is responsible for reading arrow sequences and currently pressed arrows from the PIC and displaying that accordingly. New sequences are added to the bottom of the screen, where they gradually move up to the top. At the top are faded outline arrows, which when they are pressed on the mat, they become fully opaque. The application is responsible for determining if the user properly presses the correct arrows at the time the current arrow sequence is passing by. The user recieves points depending on how well they time their presses.
 
-TODO: Include figure of mac display with breakdown
+![Mac App Breakdown](resources/mac_app.png)
 
 ---
 
@@ -217,7 +217,7 @@ The major consideration that affected our tile construction was a desire for res
 
 Because the FSRs were small in area (<1 inch square), we added two to each tile to increase the robustness of detection. We used a plywood plank as our first version of the tile, but found it to be a bit too heavy. We then used these canvas boards that were significantly lighter. We hot-glued 1/4-in nuts to each of the FSRs and placed them near the center along one diagonal of the board. We then hot-glued washers and nuts to each of the four corners. As a result of this setup, the resistors typically had no force applied to them, because they hardly rested on the floor. However, once depressed, the board bended slightly and the FSRs were squeezed. We wired the two resistors in parallel, then in series with a 10KΩ resistor. Running 3.3 V across the setup and measuring the voltage at the intersection point gave us voltage levels of basically 0V/3.2V when unpressed/pressed, which meant we could just wire up each tile to a digital pin. We constructed four of these, wired them up to a protoboard hidden underneath the center tile, then fed a ribbon cable up to our main protoboard.
 
-!["First Tile"](resources/tile1.JPG)
+!["First Tile"](resources/tile1.jpg)
 
 *Our First Tile*
 
@@ -292,7 +292,7 @@ Our project is heavily inspired by the game Dance Dance Revolution, which is ind
 
 We believe that our project is fully compliant with IEEE standards. We embarked on the project in an effort to bring an enjoyable, fun game to the masses, and that is ultimately what we ended up doing. Our project's individual components are all harmless: Floor switches, audio buffering, and beat detection. The IEEE code puts emphasis on protecting the public's health and safety. As a result we made special effort to make sure individuals do not trip or injure their feet when playing the game by putting the tiles low to the ground and making sure they would not slide around. As noted above, we do not think we are making any IP violations through the project. Even if our interpretation of the law is incorrect, we doubt that the publication of a single open source version of the Dance Dance Revolution game will cause the game publishers to lose any income. By making our code, schematics, and methodology publically available, we hope to encourage understanding of technology and spark interest in embedded design and signal processing, as per point five of the IEEE Code of Ethics. Moreover, we have noted all contributors and sources of code and ideas. In summation: Our project is fairly benign, and we hope it brings joy to all who play it.
 
-We found no legal issues with our project. The only concern was that of intellectual property violations, and as noted above, we do not violate any trademarks. 
+We found no legal issues with our project. The only concern was that of intellectual property violations, and as noted above, we do not violate any trademarks. Our arrow image used in our project was taken from [DeviantArt](https://inkjuse.deviantart.com/art/DDR-Arrow-111309080). There was no license attached with the image. 
 
 ---
 
@@ -314,7 +314,19 @@ The group approves the video for inclusion on the course Youtube channel.
 
 ### Appendix B: Commented Code
 
-should put links to other pages/github here
+All of our code and the projects are on GitHub [here](https://github.com/drewsdunne/ece4760-lab5). The most important files are linked locally below. 
+
+- [lab5_wavelet.c](code/lab5_wavelet.c)
+- [lab5_buffer.c](code/lab5_buffer.c)
+- [wavelet.c](code/wavelet.c)
+- [dwt.c](code/dwt.c)
+- [haar.c](code/haar.c)
+- [GameController.h](code/GameController.h)
+- [GameController.m](code/GameController.m)
+- [GameData.h](code/GameData.h)
+- [GameData.m](code/GameData.m)
+- [GameObject.h](code/GameObject.h)
+- [GameObject.m](code/GameObject.m)
 
 ---
 
@@ -387,4 +399,9 @@ Michael focused on:
 
 [IEEE Code of Ethics](https://www.ieee.org/about/corporate/governance/p7-8.html)
 
-**THINGS TO ADD: LINK TO OUR GITHUB**
+[GitHub Repo](https://github.com/drewsdunne/ece4760-lab5)
+
+[ORSSerialPort](https://github.com/armadsen/ORSSerialPort)
+
+[USB Serial Driver for Mac](http://www.prolific.com.tw/US/ShowProduct.aspx?p_id=229&pcid=41)
+

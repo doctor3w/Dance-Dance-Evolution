@@ -16,7 +16,8 @@ We were inspired by a mutual desire to work on a music related project, and both
 
 ![Mac App Breakdown](resources/finalpic.JPG)
 
-Figure 1: Our final system (missing power supplies)
+> Figure 1: Our final system (missing power supplies)
+>
 
 ---
 
@@ -26,7 +27,7 @@ The system requires two kinds of user input: An audio source and button pushes f
 
 ![Block Diagram](resources/block_diagram.png)
 
-Figure 2: System Block Diagram
+> Figure 2: System Block Diagram
 
 #### Audio Input
 
@@ -35,28 +36,37 @@ We use each of the PIC32s' onboard analog to digital converters (ADC) to sample 
 #### Beat Detection
 
 The idea to use wavelet transforms came from a Cornell class ECE3250 (Mathematics of Signal and System Analysis), where Professor Delchamps discussed the topic briefly. As an overview - wavelet transforms are a way to quickly assess the frequency of components of a signal with a degree of time resolution. They are attractive to an embedded systems application like this one because they require relatively little calculations to compute. 
+$$
+W_{\psi}(j_0, k) = \frac{1}{\sqrt{M}}\sum_x f(x)\psi_{j_0,k}(x)
+$$
 
-![dwt](resources/dwt.jpg)
-
-Figure 3: The Discrete Wavelet Transform (DWT)
+> Figure 3: The Discrete Wavelet Transform (DWT)
+>
 
 The discrete wavelet transform (DWT), is performed on a discrete time signal using the mother wavelet, Ψ (see Figure 3). There are many different kinds of mother wavelets, but the easiest to use computationally is the Haar wavelet (see Figure 4). When the Haar wavelet is used, the math to compute each layer of the DWT is fairly simple, requiring only a few multiplies and adds. Moreover, these calculations are recursive and extremely efficient. 
 
 ![dwt](resources/haar.png)
 
-Figure 4: The Haar mother wavelet
+> Figure 4: The Haar mother wavelet
+>
 
-The DWT outputs a series of coefficient values, which correspond to the energy of the signal at various frequencies. A signal of length L = 2^N will have N sets of coefficients. Each set of coefficients is calculated recursively from the previous set, so each has half as many elements as the set before (the first set has L/2 elements). Together, these can be used to reconstruct the signal, or, in our case, get a general understanding of its frequency components. Each layer of the transform (i.e., each set of the coefficients) represents a different scale of frequencies. The lowest layers of the transform (which have the most elements), represent the highest frequencies, and vice versa (see Figure 5). 
+The DWT outputs a series of coefficient values, which correspond to the energy of the signal at various frequencies. A signal of length 
+$$
+L = 2^N
+$$
+will have N sets of coefficients. Each set of coefficients is calculated recursively from the previous set, so each has half as many elements as the set before (the first set has L/2 elements). Together, these can be used to reconstruct the signal, or, in our case, get a general understanding of its frequency components. Each layer of the transform (i.e., each set of the coefficients) represents a different scale of frequencies. The lowest layers of the transform (which have the most elements), represent the highest frequencies, and vice versa (see Figure 5). 
 
 ![dwt](resources/dwttree.png)
 
-Figure 5: The DWT's process. AX are the approximate coefficients, which are used to calculate the next layer of the transform. DX are the detailed coefficients, used in our algorithm.
+> Figure 5: The DWT's process. AX are the approximate coefficients, which are used to calculate the next layer of the transform. DX are the detailed coefficients, used in our algorithm.
+>
 
 Our initial idea was to perform the wavelet transform, and then set threshold values for each set of coefficients. If the transform produced a value above those coefficients, a beat would be detected. Our final implementation was slightly different, and incorporated averaging to set better thresholds (see Figure 6).
 
 ![Mac App Breakdown](resources/beat_block.png)
 
-Figure 6: A block diagram of our beat detection system
+> Figure 6: A block diagram of our beat detection system
+>
 
 #### Dance Mat User Input
 
@@ -68,7 +78,8 @@ Rather than building any sort of display, we chose to make an app for a Mac comp
 
 ![Mac App Breakdown](resources/mac_app.png)
 
-Figure 7: Annotated Gameplay Screen
+> Figure 7: Annotated Gameplay Screen
+>
 
 ---
 
@@ -185,15 +196,17 @@ We first modeled our system in MATLAB, to ensure that this was actually possible
 
 !["Kick HiHat Test"](resources/kickhatsplice.png)
 
-Figure 8: DWT Test - Expanded coefficients of a signal with low (the kick drum) and high (the hi-hat) frequency components
+> Figure 8: DWT Test - Expanded coefficients of a signal with low (the kick drum) and high (the hi-hat) frequency components
+>
 
 We conducted a variety of tests on various signals, including frequency sweeps and snippets of real songs (see Figure 9). We constructed a mapping from each layer of the transform to the frequency that provoked the greatest response, and also recorded threshold coefficient values. This culminated in a script that would take in a signal, and note the times when beats were detected (see song_test.m, in Appendix B). This process was effective in further developing our beat detection method. We added in downsampling of the original signal by 2 and a rectification of the transformed signal. This script functioned as an effective proof of concept, and served us well as we moved forward.
 
 !["Kick HiHat Test"](resources/trimmedwaveletform.png)
 
-Figure 9: DWT of a 15 second song snippet. Note the distinct peaks, which correspond to beats.
+> Figure 9: DWT of a 15 second song snippet. Note the distinct peaks, which correspond to beats.
+>
 
-We then began working to move the algorithm to C. We wanted to use or adapt an existing library for our purposes to maximize our efficiency. We initially used Rafat's wave library (see references), but found it too unwieldy. We then settled on the GNU Scientific Library, an open source scientific computing library. It had fairly good documentation online, and very easy to use functions. We did have to make several modifications, though. First, it is important to note that the GSL's notation is opposite from MATLAB's - i.e. higher coefficient levels have more entries and represent higher frequencies. This was fairly trivial though. We began by stripping the library of everything we did not need (2D wavelet transforms, wavelets besides the Haar wavelet, needless libraries, etc.). The most important priority was to modify GSL's DWT to no longer allocate any memory using malloc. We basically just allocate the memory beforehand by declaring variables of the necessary sizes to compute the DWT. The DWT is always computed on an array of length 2048, so arrays of constant sizes can be used. We also converted much of the calculations to integer math, becuase we did not need precision. We do have to cast to doubles for certain operations.
+We then began working to move the algorithm to C. We wanted to use or adapt an existing library for our purposes to maximize our efficiency. We initially used Rafat's wave library (see references), but found it too unwieldy. We then settled on the GNU Scientific Library, an open source scientific computing library. It had fairly good documentation online, and very easy to use functions. We did have to make several modifications, though. First, it is important to note that the GSL's notation is opposite from MATLAB's - i.e. higher coefficient levels have more entries and represent higher frequencies. This was fairly trivial though. We began by stripping the library of everything we did not need (2D wavelet transforms, wavelets besides the Haar wavelet, needless libraries, etc.). The most important priority was to modify GSL's DWT to no longer allocate any memory dynamically using malloc, since the PIC does not have a heap space defined where anything could be allocated. Instead, we just allocate the memory beforehand by declaring global variables of the necessary sizes to compute the DWT. The DWT is always computed on an array of length 2048, so arrays of constant sizes can be used. We also converted much of the calculations to integer math, because we did not need precision. We do cast to doubles for certain operations when using constants to maintain some precision.
 
 ```c
 int data[SAMPLE_SIZE];
@@ -206,7 +219,7 @@ static gsl_wavelet_workspace workspace = { scratch, 2048 };
 gsl_wavelet_workspace *work = &workspace;
 ```
 
-Once the DWT algorithm was functioning, we began writing the actual beat detection code. We decided to perform the DWT approximately 10 times a second, so that we could get pretty good resolution for beat detection. Sampling at 40kHz, this worked out to about 4096 samples for each transform (the function requires an input array of length 2^N for some N). We downsample by 2, giving us 2048 samples and 11 layers of coefficients. When a buffer of samples fills, we compute the DWT. GSL's DWT returns the coefficients in one large array, so our absmax function takes in array indices and returns the maximum absolute coefficient value in that segment. This allows to find the peak of each coefficient layer.
+Once the DWT algorithm was functioning, we began writing the actual beat detection code. We decided to perform the DWT approximately 10 times a second, so that we could get pretty good resolution for beat detection. Sampling at 40kHz, this worked out to about 4096 samples for each transform (the function requires an input array of length that is some power of 2). We downsample by 2, giving us 2048 samples and 11 layers of coefficients. When a buffer of samples fills, we trigger the DWT computation. GSL's DWT returns the coefficients in one large array, so we defined an absmax function that returns the maximum absolute coefficient value in a specified range. This allows to find the peak of each coefficient layer.943e4
 
 We then take those peaks and compare them to our thresholds. We have two sets of thresholds for each coefficient layer, one active and one passive. If the absmax value is greater than active plus passive thresholds, a beat is detected. The passive thresholds were set due to testing trial and error. The active ones are essentially a running average of the past four or so absmax values from that coefficient layer, implemented through an approximation of an RC filter (`((old_val - new_val) >> 1) + ((old_val - new_val) >> 2) + new_val`). We then send the detected beats to the computer.
 
@@ -248,7 +261,8 @@ We soldered our audio circuitry on a protoboard to make it easier to debug and t
 
 ![Mac App Breakdown](resources/audioboard.JPG)
 
-Figure 10: Annotated image of our final protoboard
+> Figure 10: Annotated image of our final protoboard
+>
 
 #### Floor Tiles
 
@@ -258,11 +272,13 @@ Because the FSRs were small in area (<1 inch square), we added two to each tile 
 
 !["First Tile"](resources/tile1.jpg)
 
-Figure 11: Our proof of concept tile
+> Figure 11: Our proof of concept tile
+>
 
 ![Mac App Breakdown](resources/finalmat.JPG)
 
-Figure 12: Final floor tile configuration
+> Figure 12: Final floor tile configuration
+>
 
 Our pinouts for each PIC (small and large board) are listed below. In total we used 16 pins. This does not include pins used for Vdd and GND. See *Appendix C: Schematics* for more details.
 
@@ -309,9 +325,9 @@ https://www.youtube.com/watch?v=pbBUz9WgCM0
 
 <https://youtu.be/TxRhZYfxWvQ>
 
-As we expected at the onset of the project, certain genres of music did not work well for our system. We had two different types of failure cases. In the first case, no beats would be detected. This occurs when a piece of music is slower and has few cases of 'spikes in the signal,' so to speak. The Discrete Wavelet Transform essentially detects high energy transitions that look like the mother wavelet (see *High Level Design: Beat Detection*), and these are much less common in songs without modern bass. Classical music obviously fails to have beats detected. We also had poor results with jazz (Louis Armstrong, Dave Brubeck's Take Five). 
+As we expected at the onset of the project, certain genres of music did not work well for our system. We had two different types of failure cases. In the first case, no beats would be detected. This occurs when a piece of music is slower and has few cases of 'spikes in the signal,' so to speak. The Discrete Wavelet Transform essentially detects high energy transitions that look like the mother wavelet (see *High Level Design: Beat Detection*), and these are much less common in songs without modern bass. Classical music obviously fails to have beats detected. We also had poor results with jazz (Louis Armstrong, Dave Brubeck's Take Five, Seth MacFarlane). 
 
-The other failure case we encountered was when too many beats were detected. This occurred primarily when base notes were too long, or the music simply had 'too much going on.' We consistently failed to generate anything remotely usable when playing hip-hop music, because long 808 bass notes caused our beat detection system to freak out, generating far too many notes. Quick hi-hats also resulted in many beat detections. This oversaturation made the game unplayable.
+The other failure case we encountered was when too many beats were detected. This occurred primarily when base notes were too long, or the music simply had 'too much going on.' We consistently failed to generate anything remotely usable when playing hip-hop music, because long 808 bass notes caused our beat detection system to freak out, generating far too many notes. Quick hi-hats also resulted in many beat detections. This oversaturation made the game unplayable in most cases.
 
 https://www.youtube.com/watch?v=3SJikKN0DuU
 
@@ -325,9 +341,9 @@ Our project is something that users will physically interact with and use, so we
 
 Taken holistically, we were extremely pleased with the outcome of our project. The beat detection and arrow generation on certain songs was extremely good, and resulted in very playable patterns (see Results section). The application ran extremely well on the Mac, and user input using the pad was very straightforward. We attracted quite a lot of attention in the lab while demoing, which was extremely satisfying. Two areas for improvement stood out to us as we completed the project: A) Expanding our beat detection for more areas of music, and B) improving the floor tile system. 
 
-Our beat detection was a fairly robust system, which was able to distinguish beats from music with simple beat structures and heavy drums (genres like classic rock and techno). As noted above, genres with heavy, longer basslines (for example, hip-hop with long, droning 808 bass), resulted in over detection and too many arrows appearing on screen. We talked about modifying either the PIC code or the Mac code to identify these longer basslines and display them on the screen as either one single beat, or an opportunity for the user to hold down one arrow pad. We ultimately decided not to do this because of the scale of the changes we would need to make. Future improvements to the system should certainly include this.
+Our beat detection was a fairly robust system, which was able to distinguish beats from music with simple beat structures and heavy drums (genres like classic rock and techno). As noted above, genres with heavy, longer basslines (for example, hip-hop with long, droning 808 bass), resulted in over detection and too many arrows appearing on screen. We talked about modifying either the PIC code or the Mac code to identify these longer basslines and display them on the screen as either one single beat, or an opportunity for the user to hold down one arrow pad. We ultimately decided not to do this because of the scale of the changes we would need to make. Future improvements to the system should certainly include this. We also thought about using the maximum threshold offset to pick the most energetic two or three arrows, in order to prevent sequences that had possibly 4 arrows and we essentially unplayable. Fine tuning in the arrows sequence generation could always be done to make the system even more robust. 
 
-Perhaps the most obvious improvement necessary is to the floor tiles. While they technically did work - when someone placed their weight on a tile, the system would almost immediately (within 60 milliseconds) recognize a press. However, the tiles were simply too fragile (or seemed too fragile) to be used for the actual game. Each one was made out of a canvas board, propped up on the corners by metal nuts and washers. As a result, they felt very unsteady and breakable when a user put their weight on them. The center tile, where the user put their weight for the majority of playing time, was especially problematic because we chose to put the wiring protoboard underneath it. It felt like a jump on that page would result in the board snapping. It was thus difficult for anyone to actually play on the system. Moreover, the glue was indeed quite delicate, and we often had nuts and sensors fall off. We simply did not have time to revise our board design. If we were to improve the system, we could go in one of two directions. Either stiffen the boards by making them out of a sturdier material like wood (as our first, proof of concept board was), or get rid of the boards altogether, and make a mat-based system. We could still incorporate our force sensitive resistors (which worked extremely well), by putting some sort of light tile into the mat, so that the force of a step would be distributed onto the FSRs. Overall though, we were extremely happy with how our project turned out.
+Perhaps the most obvious improvement necessary is to the dance mat. While they technically did work - when someone placed their weight on a tile, the system would almost immediately (within 60 milliseconds) recognize a press. However, the tiles were simply too fragile (or seemed too fragile) to be used for the actual game. Each one was made out of a canvas board, propped up on the corners by metal nuts and washers. As a result, they felt very unsteady and breakable when a user put their weight on them. The center tile, where the user put their weight for the majority of playing time, was especially problematic because we chose to put the wiring protoboard underneath it. It felt like a jump on that page would result in the board snapping. It was thus difficult for anyone to actually play on the system. Moreover, the glue was indeed quite delicate, and we often had nuts and sensors fall off. We simply did not have time to revise our board design. If we were to improve the system, we could go in one of two directions. Either stiffen the boards by making them out of a sturdier material like wood (as our first, proof of concept board was), or get rid of the boards altogether, and make a mat-based system. We could still incorporate our force sensitive resistors (which worked extremely well), by putting some sort of light tile into the mat, so that the force of a step would be distributed onto the FSRs. Overall though, we were extremely happy with how our project turned out.
 
 Our project is heavily inspired by the game Dance Dance Revolution, which is indeed a trademarked property. However, the name 'Dance Dance Evolution' has [no active trademarks associated with it](http://tmsearch.uspto.gov/bin/showfield?f=toc&state=4805%3Aq2zjoa.1.1&p_search=searchss&p_L=50&BackReference=&p_plural=yes&p_s_PARA1=&p_tagrepl~%3A=PARA1%24LD&expr=PARA1+AND+PARA2&p_s_PARA2=dance+dance+evolution&p_tagrepl~%3A=PARA2%24COMB&p_op_ALL=AND&a_default=search&a_search=Submit+Query&a_search=Submit+Query). In a sense, we did reverse engineer the mechanics of their game, but we could not find a specific patent for the game play mechanism. We do not think our beat detection algorithm/approach is novel enough to patent (see the Tzanetakis paper in our references). We reuse some code written by Bruce Land and Syed Tahmid Mahbub for the course. We also relied heavily on the GNU Scientific Library and Matt Gallagher's Core Animation library. Since our project is entirely open source and we are not seeking to mass-produce this for profit, we have no reason to believe we are violating any intellectual property.
 
@@ -339,7 +355,7 @@ We found no legal issues with our project. The only concern was that of intellec
 
 ### Acknowledgements
 
-We would like to heartily thank Interlink Electronics for their generous donation of 10 force sensitive resistors (part number FSR402). Their contribution made our project possible.
+We would like to heartily thank [**Interlink Electronics**](http://interlinkelectronics.com/) for their generous donation of 10 force sensitive resistors (part number FSR402). Their contribution made our project possible.
 
 In addition, we are extremely grateful to Professor Bruce Land, who provided an immeasurable amount of help. Huge thanks also to Professor David Delchamps, whose lectures and advice inspired the signal analysis component of our project. Mark Zhao was a spectacular, well-informed TA.
 
@@ -459,6 +475,8 @@ Sources for DWT explanation images:
 [Spotify playlist of songs that work well with our system](https://open.spotify.com/user/ikneadthis/playlist/3bhtbVHmOR9QFXgW1xDQiN)
 
 [Our GitHub Repo](https://github.com/drewsdunne/ece4760-lab5)
+
+[Interlink Electronics](http://interlinkelectronics.com/)
 
 
 

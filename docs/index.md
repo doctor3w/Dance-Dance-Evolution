@@ -36,7 +36,13 @@ Figure _:The Discrete Wavelet Transform (DWT)
 
 The discrete wavelet transform (DWT), is performed on a discrete time signal using the mother wavelet, Ψ. There are many different kinds of mother wavelets, but the easiest to compute is the Haar wavelet (see Figure ). When the Haar wavelet is used, the math to compute each layer of the DWT is fairly simple, requiring only a few multiplies and adds. Moreover, it is recursive and extremely efficient. 
 
-The DWT outputs a series of coefficient values, which correspond to the energy of the signal at various frequencies. A signal of length L = 2^N will have N sets of coefficients. Each set of coefficients is calculated recursively from the previous set, so each has half as many elements as the set before (the first set has L/2 elements). Together, these can be used to reconstruct the signal, or, in our case, get a general understanding of its frequency components. Each layer of the transform (i.e., each set of the coefficients) represents a different scale of frequencies. The lowest layers of the transform (which have the most elements), represent the highest frequencies, and vice versa. Our initial idea was to perform the wavelet transform, and then set threshold values for each set of coefficients. If the transform produced a value above those coefficients, a beat would be detected. Our final implementation was slightly different, and incorporated averaging to set better thresholds.
+![dwt](resources/haar.png)
+
+The DWT outputs a series of coefficient values, which correspond to the energy of the signal at various frequencies. A signal of length L = 2^N will have N sets of coefficients. Each set of coefficients is calculated recursively from the previous set, so each has half as many elements as the set before (the first set has L/2 elements). Together, these can be used to reconstruct the signal, or, in our case, get a general understanding of its frequency components. Each layer of the transform (i.e., each set of the coefficients) represents a different scale of frequencies. The lowest layers of the transform (which have the most elements), represent the highest frequencies, and vice versa. 
+
+![dwt](resources/dwttree.png)
+
+Our initial idea was to perform the wavelet transform, and then set threshold values for each set of coefficients. If the transform produced a value above those coefficients, a beat would be detected. Our final implementation was slightly different, and incorporated averaging to set better thresholds.
 
 TODO: Block diagram
 
@@ -407,6 +413,12 @@ Michael focused on:
 
 ###Appendix F: References and Helpful Resources
 
+Sources for DWT explanation images:
+
+- [Acoustic Emission Signal Analysis by Wavelet Method to Investigate Damage Mechanisms During Drilling of Composite Materials](https://www.researchgate.net/publication/267333035_Acoustic_Emission_Signal_Analysis_by_Wavelet_Method_to_Investigate_Damage_Mechanisms_During_Drilling_of_Composite_Materials)
+- [Encyclopedia of Multimedia - Discrete Wavelet Transform](https://link.springer.com/referenceworkentry/10.1007%2F978-0-387-78414-4_305)
+- [Haar Wavelet](https://en.wikipedia.org/wiki/Haar_wavelet)
+
 [George Tzanetakis' wonderful paper on beat extraction with the discrete wavelet transform](http://soundlab.cs.princeton.edu/publications/2001_amta_aadwt.pdf)
 
 [Rafat Hussain's C Wave Library, which we didn't end up using, but may be a helpful resource](https://github.com/rafat/wavelib)
@@ -417,17 +429,17 @@ Michael focused on:
 
 [Prolific Serial Driver](http://www.prolific.com.tw/US/ShowProduct.aspx?p_id=229&pcid=41)
 
-[Matt Gallagher's Core Animation library](https://developer.apple.com/library/content/documentation/Cocoa/Conceptual/CoreAnimation_guide/Introduction/Introduction.html)
+[ORSSerialPort](https://github.com/armadsen/ORSSerialPort)
 
-[Spotify playlist of songs that work well with our system](https://open.spotify.com/user/ikneadthis/playlist/3bhtbVHmOR9QFXgW1xDQiN)
+[Matt Gallagher's Core Animation library](https://developer.apple.com/library/content/documentation/Cocoa/Conceptual/CoreAnimation_guide/Introduction/Introduction.html)
 
 [PIC32 Peripheral Library](http://ww1.microchip.com/downloads/en/DeviceDoc/32bitPeripheralLibraryGuide.pdf)
 
 [IEEE Code of Ethics](https://www.ieee.org/about/corporate/governance/p7-8.html)
 
-[GitHub Repo](https://github.com/drewsdunne/ece4760-lab5)
+[Spotify playlist of songs that work well with our system](https://open.spotify.com/user/ikneadthis/playlist/3bhtbVHmOR9QFXgW1xDQiN)
 
-[ORSSerialPort](https://github.com/armadsen/ORSSerialPort)
+[Our GitHub Repo](https://github.com/drewsdunne/ece4760-lab5)
 
-[USB Serial Driver for Mac](http://www.prolific.com.tw/US/ShowProduct.aspx?p_id=229&pcid=41)
+
 

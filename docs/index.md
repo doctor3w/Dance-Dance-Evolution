@@ -381,7 +381,7 @@ MATLAB Models (requires Wavelet Toolbox):
 
 ###Appendix C: Schematics
 
-![DDESchematic](/Users/michaelsolomentsev/Downloads/DDESchematic.png)
+![DDESchematic](resources/DDESchematic.png)
 
 ---
 

@@ -181,6 +181,10 @@ Because the FSRs were small in area (<1 inch square), we added two to each tile 
 
 #### General Usability
 
+The final product was a success. The audio buffering worked extremely well, user input was clearly visible on the screen, beat detection was fairly good (see below section), and the Mac app accurately kept track of the score. Our floor tiles were somewhat difficult to use, because they felt very fragile to users who stepped on them. In order to prevent anything from breaking, much of the final testing was then done by stepping on the tiles while standing adjacent to the system (essentially being as delicate as possible). The game was definitely functional, though. Both team members found it exceptionally difficult to play the game because it was simply very hard. On the whole though, it was a successful, usable system.
+
+*INSERT VIDEO*
+
 ####Beat Detection
 
 The beat detection algorithm was remarkably successful. We tested using a variety of different music and different genres. Once the algorithm was implemented on the PIC and arrows were being sent to the monitor, we had a simple trial and error system of testing. In order to calibrate timing, we would play one drum beat, then measure the difference in time between when it played on the speakers and when the generated arrow reached the top of the screen. We adjusted the buffer size on the PIC and the speed of the arrows on the Mac to achieve synchronous behavior. Once this was done, we simply tried to play as much music as we could. Early attempts at this revealed that preset thresholds simply were not effective at doing beat detection between many different types of music. We then implemented an active averaging system to detect beats (see *Software Design: Signal Processing and Beat Detection*), which proved to be significantly more versatile.
@@ -197,7 +201,7 @@ The other failure case we encountered was when too many beats were detected. Thi
 
 ####Safety
 
-
+Our project is something that users will physically interact with and use, so we needed to ensure user safety. All the exposed wires are perfectly safe to touch, because everything is at low voltages. We did have some concerns with user safety while stepping on the mat tiles. They were resistent to slipping on the floor surface we tested on (the linoleum tiles of Phillips 238), so that was not an issue. We hid all the wiring for the floor tiles beneath the boards so that users would not be able to trip and fall. The interface between the PIC and the floor tiles is one ribbon cable, and we made sure to put quite a bit of slack in it, so that users could get it out of their way while playing and minimize any hazard.
 
 ---
 
@@ -245,7 +249,7 @@ TODO EVERYTHING
 
 ---
 
-### Appendix D: Budgeting
+### Appendix D: Budget
 
 | Part                               | Quantity | Cost   |
 | ---------------------------------- | :------- | ------ |
@@ -254,15 +258,17 @@ TODO EVERYTHING
 | 10"x10" Canvas Boards              | 5        | $10.00 |
 | PIC32 Large Development Board      | 1        | $10.00 |
 | Serial to Serial Cable             | 1        | $5.00  |
-| Jumper Cables                      | ???      |        |
+| Jumper Cables                      | 21       | $2.10  |
 | 6" Solder Board                    | 2        | $5.00  |
 | 9V Power Supply                    | 2        | $10.00 |
 | Lab Speakers                       | 1        | $2.00  |
-| Header Sockets                     | ???      |        |
+| Header Sockets                     | 74       | $3.70  |
 | PIC32MX250F128B                    | 2        | $10.00 |
 | 23LC1024 SRAM                      | 1        | $2.32  |
 | PIC32 Small Development Board      | 1        | $5.00  |
-| **TOTAL**                          |          | $      |
+| MicroStickII                       | 1        | $1.00  |
+|                                    |          |        |
+| **TOTAL**                          |          | $67.86 |
 
 ---
 
@@ -306,4 +312,4 @@ Michael focused on:
 
 [IEEE Code of Ethics](https://www.ieee.org/about/corporate/governance/p7-8.html)
 
-**THINGS TO ADD: LINK TO OUR GITHUB/link to serial library/link to matt gallaghers animation library**
+**THINGS TO ADD: LINK TO OUR GITHUB**

@@ -74,7 +74,7 @@ Figure 7: Annotated Gameplay Screen
 
 #### macOS Application
 
-As aforementioned, our Mac app reads from the PIC through UART. In order to achieve this we first had to install a driver to the specific serial cable bought for the project. We used one from Prolific, the link to the driver is [here](http://www.prolific.com.tw/US/ShowProduct.aspx?p_id=229&pcid=41). Once we could communicate to the PIC over UART, we need the mac application to be able to communicate through UART as well, and for that we used a framework called [ORSSerialPort](https://github.com/armadsen/ORSSerialPort). This framework allowed us to use a common pattern in Cocoa development called the delegate pattern. We used ORSSerialPort to create a ORSSerialPort object, which we set our app's view controller as the delegate for, and then an interface function implemented as part of the delegate pattern would be called every time there was new data to read. This made reading from the PIC very simple, as each time that method was called we knew more information had been sent from the PIC. The delegate method called by the serial port object in GameController is shown below.
+As mentioned before, our Mac app reads from the PIC through UART. In order to achieve this we first had to install a driver to the specific serial cable bought for the project. We used one from Prolific, the link to the driver is [here](http://www.prolific.com.tw/US/ShowProduct.aspx?p_id=229&pcid=41). Once we could communicate to the PIC over UART, we need the mac application to be able to communicate through UART as well, and for that we used a framework called [ORSSerialPort](https://github.com/armadsen/ORSSerialPort). This framework allowed us to use a common pattern in Cocoa development called the delegate pattern. We used ORSSerialPort to create a ORSSerialPort object, which we set our app's view controller as the delegate for, and then an interface function implemented as part of the delegate pattern would be called every time there was new data to read. This made reading from the PIC very simple, as each time that method was called we knew more information had been sent from the PIC. The delegate method called by the serial port object in GameController is shown below.
 
 ```objective-c
 // ORSSerialPort delegate method implementation
@@ -98,9 +98,9 @@ As aforementioned, our Mac app reads from the PIC through UART. In order to achi
 }
 ```
 
-The application also displays the arrow sequences and user input, and this was done by adapting simple CoreAnimation game library developed by Matt Gallagher. This library offers simple game objects with the GameObject class, centralized game data with GameData class, and CoreAnimation layers for the game objects (GameObjectLayer class) all synchronized with NSTimers and Key-Value Observation. The game data starts a timer upon a new game which calls update functions for each game object currently in the data. Each time they object updates its properties, they value change notifies the game objects attached CoreAnimation layer object to update on the screen. The library was adapted for our arrow objects and the game data now sets a new game up with outline arrows and a score of zero. We also modified how objects were removed from the screen by using CATransactions rather than abruptly removing it, which was causing an odd lag as the arrows moved upwards. 
+The application also displays the arrow sequences and user input, and this was done by adapting the simple CoreAnimation game library developed by Matt Gallagher. This library offers simple game objects with the GameObject class, centralized game data with GameData class, and CoreAnimation layers for the game objects (GameObjectLayer class) all synchronized with NSTimers and Key-Value Observation. The game data starts a timer upon a new game which calls update functions for each game object currently in the data. Each time they object updates its properties, they value change notifies the game objects attached CoreAnimation layer object to update on the screen. The library was adapted for our arrow objects and the game data now sets a new game up with outline arrows and a score of zero. We also modified how objects were removed from the screen by using CATransactions rather than abruptly removing it, which was causing an odd lag as the arrows moved upwards. 
 
-To combine the game view and the reading of the serial input, we had a view controller. Our app used another common Cocoa modeling called MVC, or Model-View-Controller. This idea keeps the model, or data, from interacting directly with the view. The controller handles the interaction between the two. Thus our controller would be the one reading from the serial port, and each time a byte had been sent from the PIC, it would parse those bits for the new arrow sequence as well as the currently pressed arrows. The controller would then instruct the game data to add new arrow objects to the screen and highlight the user arrows as necessary. One hiccup we came across was the serial port library on the Mac would trigger the delegate method with a 0 byte every other trigger. We could not figure out why this happend, so we had to develop a workaround. The solution was to send from the PIC all the data with the bits inverted, because it was rare that all 4 arrows would be pressed and that we'd be adding all four arrows in one sequence which would be the byte `0b11111111`. Hence flipping all the bits allowed us to ignore all 0 bytes, but everything essentially became active low. To handle the adding of the arrow objects and highlighting we defined the following functions inside the GameData class. 
+To combine the game view and the reading of the serial input, we had a view controller. Our app used another common Cocoa modeling called MVC, or Model-View-Controller. This idea keeps the model, or data, from interacting directly with the view. The controller handles the interaction between the two. Thus our controller would be the one reading from the serial port, and each time a byte had been sent from the PIC, it would parse those bits for the new arrow sequence as well as the currently pressed arrows. The controller would then instruct the game data to add new arrow objects to the screen and highlight the user arrows as necessary. One hiccup we came across was the serial port library on the Mac would trigger the delegate method with a 0 byte every other trigger. We could not figure out why this happend, so we had to develop a workaround. The solution was to send from the PIC all the data with the bits inverted, because it was rare that all 4 arrows would be pressed and that we would be adding all four arrows in one sequence (which would normally be the byte `0b11111111`). Hence flipping all the bits allowed us to ignore all 0 bytes, and everything became active low. To handle the adding of the arrow objects and highlighting we defined the following functions inside the GameData class: 
 
 ```objective-c
 // Highlights the specified outline arrows with the bottom four 
@@ -126,7 +126,7 @@ To combine the game view and the reading of the serial input, we had a view cont
 
 Inside of GameData, we have two counters running to keep track of the next sequence number to add and the current sequence number to hit. This allows us to grab the arrow objects by number and add new ones. We also have a score variable, which whenever updated we post a notification for the GameController to update the score label on screen.
 
-On the PIC we have a simple thread running every 60 milliseconds which reads in the values of 4 input pins, checks if it is high, shifts it over a number of bits, and then ORs it into the byte to send. The code snippet below shows how we achieved this, where `arrows_to_send` is a pre-inverted arrow sequence generated from the wavelet transforms. 
+On the second PIC (which runs signal processing and user input polling) we have a simple thread running every 60 milliseconds which reads in the values of 4 input pins, checks if it is high, shifts it over a number of bits, and then ORs it into the byte to send. The code snippet below shows how we achieved this, where `arrows_to_send` is a pre-inverted arrow sequence generated from the wavelet transforms. 
 
 ```c
 send_byte = 0; // byte to send
@@ -147,7 +147,7 @@ send_byte |= send_seq;
 
 #### PIC32 1: Audio Buffering using External SRAM
 
-The audio buffering was done with our second PIC, as the CPU cycles required for SPI communication with the SRAM chip were too many to fit any other processing alongside. We used our professor Bruce's code for the SRAM chip for reading and writing to the SRAM and writing to the DAC. His code included some read/write methods as well as handling the SPI setup and mode changes. We had to add code to read from the ADC in a timer interrupt, and then write to a location in the SRAM, and finally read from a different location and write that value to the DAC. 
+The audio buffering was done with our second PIC, as the CPU cycles required for SPI communication with the SRAM chip were too many to fit any other processing alongside. We used Bruce's code for the SRAM chip for reading and writing to the SRAM and writing to the DAC. His code included some read/write methods as well as handling the SPI setup and mode changes. We had to add code to read from the ADC in a timer interrupt, and then write to a location in the SRAM, and finally read from a different location and write that value to the DAC. 
 
 ```c
 // Interrupt code (fires 40kHz)
@@ -179,7 +179,7 @@ To change how long we wanted to buffer the audio, we just needed to change the v
 
 See *High Level Design: Beat Processing* for an overview of the mathematics of the Discrete Wavelet Transform (DWT). The bottom line is that the DWT provides gives both frequency-resolution and time-resolution when we analyze a signal, and can be done extremely quickly. We use this to detect peaks in certain frequency in a signal, and detect beats if those peaks are above thresholds.
 
-We first modeled our system in MATLAB, to ensure that this was actually possible on our scale. MATLAB has a wavelet library built in, so we used the existing DWT function to transform a variety of different signals. We first made sure that one could distinguish sounds of different frequencies using the coefficients. We were able to easily visually distinguish a kick drum and a hi-hat using the coefficients (see Figure 8, note that the scaling here is significantly off from our final scaling). The drum had higher coefficient values for the highest coefficient layers, and the hi-hat the lower layers, just as we expected.
+We first modeled our system in MATLAB, to ensure that this was actually possible on our scale. MATLAB has a wavelet library built in, so we used the existing DWT function to transform a variety of different signals. We first made sure that one could distinguish sounds of different frequencies using the coefficients. We were able to easily visually distinguish a kick drum and a hi-hat using the coefficients (see Figure 8, note that the scaling here is significantly off from our final scaling). The drum had higher coefficient values for the highest coefficient layers, and the hi-hat the lower layers, just as we expected. The script to perform this analysis is in Appendix B.
 
 !["Kick HiHat Test"](resources/kickhatsplice.png)
 
@@ -234,22 +234,11 @@ Note that we do not use all the different coefficient values, because some simpl
     if (arrows_to_send != 0b00001111) should_send = 1;
 ```
 
-### PIC32 2: User Input
-
-Taking input from the floor mats was extremely simple. Each tile functioned as an active high button, and each was polled approximately 15 times per second (every 60 milliseconds). Four pins are read in succession, and the output is sent as the upper 4 bits of the byte sent to the computer via the UART connection. 
-
-```c
-        send_byte |= (mPORTBReadBits( BIT_7 ) == 0) << 4;
-        send_byte |= (mPORTBReadBits( BIT_8 ) == 0) << 5;
-        send_byte |= (mPORTBReadBits( BIT_9 ) == 0) << 6;
-        send_byte |= (mPORTBReadBits( BIT_13 ) == 0) << 7;
-```
-
 ---
 
 ### Hardware Design
 
-We used the PIC32 big development board, because it provided the best flexibility for development. It had the DAC already on board, and a variety of pins ready for use. Since we were already running significantly under budget, we had no incentive to cut cost and move to the small board. We also used a second PIC32 on the small board, rather than the large board, to hook up the dance mat through a protoboard. 
+We used the PIC32 big development board, because it provided the best flexibility for development. It had the DAC already on board, and a variety of pins ready for use. Since we were already running significantly under budget, we had no incentive to cut cost and move to the small board. We also used a second PIC32 on the small board, with connections to the floor tiles and the serial cable. The floor tiles were wired up underneath to a protoboard, and all important signals were fed up to our main protoboard using a ribbon cable.
 
 ####Audio Circuitry
 
@@ -304,7 +293,7 @@ Our pinouts for each PIC (small and large board) are listed below. In total we u
 
 #### General Usability
 
-The final product was a success. The audio buffering worked extremely well, user input was clearly visible on the screen, beat detection was fairly good (see below section), and the Mac app accurately kept track of the score. Our floor tiles were somewhat difficult to use, because they felt very fragile to users who stepped on them. In order to prevent anything from breaking, much of the final testing was then done by stepping on the tiles while standing adjacent to the system (essentially being as delicate as possible). The game was definitely functional, though. Both team members found it exceptionally difficult to play the game because it was simply very hard. On the whole though, it was a successful, usable system. Here's a video of us playing the game (poorly).
+The final product was a success. The audio buffering worked extremely well, user input was clearly visible on the screen, beat detection was fairly good (see the section below), and the Mac app accurately kept track of the score. Our floor tiles were somewhat difficult to use, because they felt very fragile to users who stepped on them. In order to prevent anything from breaking, much of the final testing was then done by stepping on the tiles while standing adjacent to the system (essentially being as delicate as possible). The game was definitely functional, though. Both team members found it exceptionally difficult to play the game because it was simply very hard. On the whole though, it was a successful, usable system. Here's a video of us playing the game (poorly).
 
 https://www.youtube.com/watch?v=pRdD69pSOHk
 

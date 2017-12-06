@@ -157,13 +157,13 @@ To change how long we wanted to buffer the audio, we just needed to change the v
 
 ### Hardware Design
 
-We used the PIC32 big development board, because it provided the best flexibility for development. It had the DAC already on board, and a variety of pins ready for use. Since we were already running significantly under budget, we had no incentive to cut cost and move to the small board. 
+We used the PIC32 big development board, because it provided the best flexibility for development. It had the DAC already on board, and a variety of pins ready for use. Since we were already running significantly under budget, we had no incentive to cut cost and move to the small board. We also used a second PIC32 on the small board, rather than the large board, to hook up the dance mat through a protoboard. 
 
 ####Audio Circuitry
 
-We soldered up our audio circuitry to make it look nice and to reduce noise. This circuitry was extremely rudimentary. Our audio input jack fed into a 500uF capacitor to cut out any DC component, then we fed it in between two 10KΩ resistors sitting between 3.3V and ground to offset it, so that the ADCs could read it with no clipping. The DAC output was fed directly to an audio jack and speakers.
+We soldered our audio circuitry on a protoboard to make it easier to debug and to reduce noise. This circuitry was extremely rudimentary. Our audio input jack fed into a 500uF capacitor to cut out any DC component, then we fed it in between two 10KΩ resistors sitting between 3.3V and ground to offset it, so that the ADCs could read it with no clipping. The DAC output was fed directly to an audio jack and speakers. 
 
-**put a photo here!!!!**
+**put a photo here!!!! with schematic!**
 
 #### Floor Tiles
 
